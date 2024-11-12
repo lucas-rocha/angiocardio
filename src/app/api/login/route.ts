@@ -5,7 +5,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const { email, password } = await request.json()
 
-  if (email === 'lucasrocha.dv@gmail.com' && password === '123') {
+  if (email === 'angiocardiolitoral@gmail.com' && password === '123') {
     return new Response(
       JSON.stringify({ email, password }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
