@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { use, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Building2, ChevronDown, LayoutDashboard, LogOut, Receipt, WalletCards } from 'lucide-react'
 import { signOut, useSession } from 'next-auth/react'
@@ -10,6 +10,7 @@ export default function Sidebar() {
   const { data: session } = useSession()
   const router = useRouter()
   const [openMenus, setOpenMenus] = useState<string[]>([])
+  const [actualMenu, setActualMenu] = useState<string>('')
   const pathname = usePathname()
 
   const toggleMenu = (menu: string) => {
@@ -30,10 +31,17 @@ export default function Sidebar() {
     return false
   }
 
+  useEffect(() => {
+    setActualMenu(pathname)
+  }, [])
+
   const isSubMenuOpen = (menu: string) => {
-    console.log(pathname, menu)
-    return true
+    if(actualMenu == menu) {
+      return true
+    }
+    return false
   }
+
 
   function logout() {
     signOut({
@@ -72,10 +80,10 @@ export default function Sidebar() {
           </button>
           {(isMenuOpen('unidades') || isMenuOpenAtRefresh('unidades')) && (
             <div className="pl-10 pt-1">
-              <Link href="/unidades/registrar" className={`block py-1 text-gray-600 hover:text-gray-900 ${isSubMenuOpen('unidades/registrar') ? 'font-bold' : '' }`}>
+              <Link onClick={() => setActualMenu('/unidades/registrar')} href="/unidades/registrar" className={`block py-1 text-gray-600 hover:text-gray-900 ${isSubMenuOpen('/unidades/registrar') ? 'font-bold' : '' }`}>
                 Registrar
               </Link>
-              <Link href="/unidades/lista" className={`block py-1 text-gray-600 hover:text-gray-900 ${isSubMenuOpen('unidades/lista') ? 'font-bold' : '' }`}>
+              <Link onClick={() => setActualMenu('/unidades/lista')} href="/unidades/lista" className={`block py-1 text-gray-600 hover:text-gray-900 ${isSubMenuOpen('/unidades/lista') ? 'font-bold' : '' }`}>
                 Lista de Unidades
               </Link>
             </div>
