@@ -1,0 +1,313 @@
+'use client'
+
+import { use, useEffect, useState } from 'react'
+import { CalendarIcon, Clipboard, Pencil, PlusCircle, Trash2 } from 'lucide-react'
+import { format } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
+
+type DebitEntry = {
+  id: string
+  description: string
+  value: number
+  dueDate: string
+  issueDate: string
+  valueToPay: string
+}
+
+interface Unit {
+  id: number
+  Description: string
+  CNP: string
+}
+
+export default function DebitosRegistro() {
+  const [unit, setUnit] = useState('')
+  const [debits, setDebits] = useState<DebitEntry[]>([])
+  const [description, setDescription] = useState('')
+  const [valueToPay, setValueToPay] = useState('')
+  const [selectedUnit, setSelectedUnit] = useState('')
+  const [issueDate, setIssueDate] = useState('')
+  const [expectedDate, SetExpectedDate] = useState('')
+  const [dueDate, setDueDate] = useState('')
+  const [entries, setEntries] = useState<DebitEntry[]>([
+    {
+      id: '1',
+      description: 'NF 20957 VALOR 1700,00 VENC 15/10',
+      value: 1700.0,
+      dueDate: '2024-01-07'
+    },
+    {
+      id: '2',
+      description: 'NF 1584 ETINIT RECIFE 2/3',
+      value: 6000.0,
+      dueDate: '2024-01-07'
+    },
+    {
+      id: '3',
+      description: 'NF 2099 VALOR 1400,00 VENC 28/10',
+      value: 1400.0,
+      dueDate: '2024-01-07'
+    },
+    {
+      id: '4',
+      description: 'NF 20956 VALOR 2670,00 VENC 04/10',
+      value: 2670.0,
+      dueDate: '2024-01-07'
+    }
+  ])
+  const [units, setUnits] = useState<Unit[]>([])
+
+  useEffect(() => {
+    async function fetchUnits() {
+      try {
+        const response = await fetch('/api/unidades');
+        const data = await response.json();
+        console.log(data)
+        
+        setUnits(data);
+      } catch (error) {
+        console.error('Error fetching units:', error);
+      }
+    }
+
+    fetchUnits();
+  }, [])
+
+  useEffect(() => {
+    async function fetchDebits() {
+      try {
+        const response = await fetch('/api/debitos');
+        const data = await response.json();
+        console.log(data)
+        
+        setDebits(data);
+      } catch (error) {
+        console.error('Error fetching units:', error);
+      }
+    }
+
+    fetchDebits();
+  }, [])
+
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault() 
+
+    console.log(description, selectedUnit, valueToPay, issueDate, expectedDate, dueDate)
+
+    const response = await fetch('/api/debitos', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ 
+        description,
+        valueToPay,
+        dueDate,
+        expectedDate,
+        issueDate,
+        unitId: selectedUnit
+       }),
+    });
+  }
+
+  const handleSelectChange = (e: React.FormEvent) => {
+    setSelectedUnit(e.target.value);
+  };
+
+  return (
+    <div className="p-6 flex-1">
+      <h1 className="text-xl font-medium">Registrar Lançamento de débito</h1>
+      
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm mb-1">Selecione a unidade</label>
+            <select className="w-full max-w-xs px-3 py-2 border rounded-md" onChange={handleSelectChange}>
+              {units.map(unit => (
+                <option key={unit.id} value={unit.id}>{unit.Description}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm mb-1">Descrição</label>
+              <input
+                type="text"
+                className="w-full px-3 py-2 border rounded-md"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-sm mb-1">Valor</label>
+              <div className="relative">
+                <span className="absolute left-3 top-2">R$</span>
+                <input
+                  type="text"
+                  className="w-full pl-8 pr-3 py-2 border rounded-md"
+                  value={valueToPay}
+                  onChange={(e) => setValueToPay(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm mb-1">Data de Emissão</label>
+              <div className="relative">
+                <input
+                  type="date"
+                  className="w-full px-3 py-2 border rounded-md"
+                  value={issueDate}
+                  onChange={(e) => setIssueDate(e.target.value)}
+                />
+                <CalendarIcon className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm mb-1">Data de vencimento</label>
+              <div className="relative">
+                <input
+                  type="date"
+                  className="w-full px-3 py-2 border rounded-md"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                />
+                <CalendarIcon className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm mb-1">Data prevista de baixa</label>
+              <div className="relative">
+                <input
+                  type="date"
+                  className="w-full px-3 py-2 border rounded-md"
+                  value={expectedDate}
+                  onChange={(e) => SetExpectedDate(e.target.value)}
+                />
+                <CalendarIcon className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          className="px-4 py-2 bg-blue-900 text-white rounded-md hover:bg-blue-800"
+        >
+          Salvar
+        </button>
+      </form>
+
+
+      <div className="mt-6">
+        <h2 className="text-sm font-medium text-gray-700 mb-4">Lançamentos atuais</h2>
+        <div className="border rounded-lg overflow-hidden">
+        {units.length === 0 ? (
+          <div className="flex justify-center items-center py-10 text-center">
+            <div>
+              <Clipboard className="mx-auto h-12 w-12 text-gray-400" />
+              <p className="text-lg text-gray-600 mt-4">
+                Nenhuma unidade encontrada.
+              </p>
+              <p className="text-sm text-gray-500 mt-2">
+                Parece que você ainda não tem unidades cadastradas. Que tal adicionar uma agora?
+              </p>
+              <button
+                onClick={() => window.location.href = '/unidades/registrar  '} // Exemplo de redirecionamento para a página de adicionar
+                className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                <PlusCircle className="inline h-5 w-5 mr-2" />
+                Adicionar Unidade
+              </button>
+            </div>
+          </div>
+        ) : (
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th scope="col" className="w-12 px-6 py-3">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Descrição
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Valor
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Data de Vencimento
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Editar
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Excluir
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {debits.map((debit) => (
+                <tr key={debit.id}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {debit.description}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {new Intl.NumberFormat('pt-BR', {
+                      style: 'currency',
+                      currency: 'BRL'
+                    }).format(debit.valueToPay)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {format(new Date(debit.dueDate), 'dd/MM/yyyy', { locale: ptBR })}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <button className="text-blue-600 hover:text-blue-900">
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <button 
+                      className="text-red-600 hover:text-red-900"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+        </div>
+      </div>
+
+    </div>
+  )
+}

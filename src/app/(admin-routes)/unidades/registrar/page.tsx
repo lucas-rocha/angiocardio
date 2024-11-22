@@ -1,37 +1,75 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Pencil, Trash2 } from 'lucide-react'
 
 interface Unit {
   id: number
-  name: string
+  Description: string
+  CNPJ: string
 }
 
 export default function RegisterUnit() {
   const [newUnit, setNewUnit] = useState('')
   const [cnpj, setCnpj] = useState('')
-  const [units, setUnits] = useState<Unit[]>([
-    { id: 1, name: 'Cordis' },
-    { id: 2, name: 'MICROPORT' },
-    // { id: 3, name: 'LITORAL' },
-    // { id: 4, name: 'NOBRE' },
-    // { id: 5, name: 'MERIL' },
-    // { id: 6, name: 'TEC RAD' },
-  ])
+  const [units, setUnits] = useState<Unit[]>([])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    async function fetchUnits() {
+      try {
+        const response = await fetch('/api/unidades');
+        const data = await response.json();
+        
+        setUnits(data);
+      } catch (error) {
+        console.error('Error fetching units:', error);
+      }
+    }
+
+    fetchUnits();
+  }, [])
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (newUnit && cnpj) {
-      setUnits([...units, { id: units.length + 1, name: newUnit }])
-      setNewUnit('')
-      setCnpj('')
+    
+    try {
+      const response = await fetch('/api/unidades', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ newUnit, cnpj }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUnits((prevUnits) => [...prevUnits, data]);
+        setNewUnit(''); // Limpa o campo após o envio
+        setCnpj('');
+      } else {
+        const errorData = await response.json();
+      }
+    } catch (error) {
+
     }
   }
 
+  const handleCnpjChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, ''); // Remove tudo que não é número
+
+    // Aplica a máscara
+    value = value
+      .replace(/^(\d{2})(\d)/, '$1.$2')
+      .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+      .replace(/\.(\d{3})(\d)/, '.$1/$2')
+      .replace(/(\d{4})(\d)/, '$1-$2');
+
+    setCnpj(value);
+  };
+
   return (
     <div className="p-6 flex-1">
-      <h1 className="text-xl font-semibold text-gray-900 mb-6">Registrar Unidade</h1>
+      <h1 className="text-xl font-semibold text-gray-900 mb-6">Cadastrar Unidade</h1>
       
       <form onSubmit={handleSubmit} className="mb-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -55,7 +93,9 @@ export default function RegisterUnit() {
               type="text"
               id="cnpj"
               value={cnpj}
-              onChange={(e) => setCnpj(e.target.value)}
+              onChange={handleCnpjChange}
+              placeholder="00.000.000/0000-00"
+              maxLength={18}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
@@ -102,7 +142,7 @@ export default function RegisterUnit() {
                       className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{unit.name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{unit.Description}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button className="text-blue-600 hover:text-blue-900">
                       <Pencil className="h-4 w-4" />

@@ -81,10 +81,10 @@ export default function Sidebar() {
           {(isMenuOpen('unidades') || isMenuOpenAtRefresh('unidades')) && (
             <div className="pl-10 pt-1">
               <Link onClick={() => setActualMenu('/unidades/registrar')} href="/unidades/registrar" className={`block py-1 text-gray-600 hover:text-gray-900 ${isSubMenuOpen('/unidades/registrar') ? 'font-bold' : '' }`}>
-                Registrar
+                Cadastrar
               </Link>
               <Link onClick={() => setActualMenu('/unidades/lista')} href="/unidades/lista" className={`block py-1 text-gray-600 hover:text-gray-900 ${isSubMenuOpen('/unidades/lista') ? 'font-bold' : '' }`}>
-                Lista de Unidades
+                Unidades Cadastradas
               </Link>
             </div>
           )}
@@ -92,22 +92,22 @@ export default function Sidebar() {
 
         <div>
           <button
-            onClick={() => toggleMenu('payables')}
-            className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-gray-700 hover:bg-white ${isMenuOpen('payables') ? 'bg-white border rounded-md' : ''}`}
+            onClick={() => toggleMenu('debitos')}
+            className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-gray-700 hover:bg-white ${(isMenuOpen('debitos') || isMenuOpenAtRefresh('debitos')) ? 'bg-white border rounded-md' : ''}`}
           >
             <div className="flex items-center gap-2">
               <Receipt className="h-5 w-5" />
               Contas a pagar
             </div>
-            <ChevronDown className={`h-4 w-4 transition-transform ${isMenuOpen('payables') ? 'rotate-180' : ''}`} />
+            <ChevronDown className={`h-4 w-4 transition-transform ${isMenuOpen('debitos') ? 'rotate-180' : ''}`} />
           </button>
-          {isMenuOpen('payables') && (
+          {(isMenuOpen('debitos') || isMenuOpenAtRefresh('debitos'))  && (
             <div className="pl-10 pt-1 space-y-1">
-              <Link href="/payables/register" className="block py-1 text-gray-600 hover:text-gray-900">
-                Registrar
+              <Link onClick={() => setActualMenu('/debitos/registrar')}  href="/debitos/registrar" className={`block py-1 text-gray-600 hover:text-gray-900 ${isSubMenuOpen('/debitos/registrar') ? 'font-bold' : '' }`}>
+                Lançamento de débito
               </Link>
-              <Link href="/payables/list" className="block py-1 text-gray-600 hover:text-gray-900">
-                Lista de todos os Débitos
+              <Link onClick={() => setActualMenu('/debitos/lista')} href="/debitos/lista" className={`block py-1 text-gray-600 hover:text-gray-900 ${isSubMenuOpen('/debitos/lista') ? 'font-bold' : '' }`}>
+                Lista de todos os lançamentos
               </Link>
             </div>
           )}

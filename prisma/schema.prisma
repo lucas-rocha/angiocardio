@@ -63,4 +63,18 @@ model Unit {
   id            String          @id @default(cuid())
   Description String
   CNPJ String
+  debits Debits[]
+}
+
+model Debits {
+  id String @id @default(cuid())
+  description String
+  valueToPay String
+  dueDate DateTime
+  expectedDate DateTime
+  issueDate DateTime
+  IsBaixa Boolean @default(false)
+
+  unitId String
+  unit Unit @relation(fields: [unitId], references: [id])
 }

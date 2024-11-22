@@ -1,26 +1,53 @@
 'use client'
 
-import { useState } from 'react'
-import { Pencil, Trash2, Search } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Pencil, Trash2, Search, Clipboard, PlusCircle } from 'lucide-react'
 
 interface Unit {
   id: number
-  name: string
+  Description: string
+  CNP: string
 }
 
 export default function ListUnit() {
   const [searchQuery, setSearchQuery] = useState('')
-  const [units, setUnits] = useState<Unit[]>([
-    { id: 1, name: 'Cordis' },
-    { id: 2, name: 'MICROPORT' },
-    // { id: 3, name: 'LITORAL' },
-    // { id: 4, name: 'NOBRE' },
-    // { id: 5, name: 'MERIL' },
-    // { id: 6, name: 'TEC RAD' },
-  ])
+  const [units, setUnits] = useState<Unit[]>([])
+
+  useEffect(() => {
+    async function fetchUnits() {
+      try {
+        const response = await fetch('/api/unidades');
+        const data = await response.json();
+        console.log(data)
+        
+        setUnits(data);
+      } catch (error) {
+        console.error('Error fetching units:', error);
+      }
+    }
+
+    fetchUnits();
+  }, [])
+
+  const handleDelete = async (id: number) => {
+    try {
+      const response = await fetch(`/api/unidades?id=${id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        // Atualize a lista de unidades após excluir
+        setUnits((prevUnits) => prevUnits.filter((unit) => unit.id !== id));
+      } else {
+        console.error('Erro ao excluir unidade');
+      }
+    } catch (error) {
+      console.error('Erro ao excluir unidade:', error);
+    }
+  };
 
   const filteredUnits = units.filter(unit => 
-    unit.name.toLowerCase().includes(searchQuery.toLowerCase())
+    unit.Description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -51,6 +78,26 @@ export default function ListUnit() {
       <div className="mt-6">
         <h2 className="text-sm font-medium text-gray-700 mb-4">Unidades atuais</h2>
         <div className="border rounded-lg overflow-hidden">
+        {units.length === 0 ? (
+          <div className="flex justify-center items-center py-10 text-center">
+            <div>
+              <Clipboard className="mx-auto h-12 w-12 text-gray-400" />
+              <p className="text-lg text-gray-600 mt-4">
+                Nenhuma unidade encontrada.
+              </p>
+              <p className="text-sm text-gray-500 mt-2">
+                Parece que você ainda não tem unidades cadastradas. Que tal adicionar uma agora?
+              </p>
+              <button
+                onClick={() => window.location.href = '/unidades/registrar  '} // Exemplo de redirecionamento para a página de adicionar
+                className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                <PlusCircle className="inline h-5 w-5 mr-2" />
+                Adicionar Unidade
+              </button>
+            </div>
+          </div>
+        ) : (
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
@@ -60,19 +107,28 @@ export default function ListUnit() {
                     className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Unidade
                 </th>
-                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Editar
                 </th>
-                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Excluir
                 </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredUnits.map((unit) => (
+              {units.map((unit) => (
                 <tr key={unit.id}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <input
@@ -80,14 +136,19 @@ export default function ListUnit() {
                       className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{unit.name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {unit.Description}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button className="text-blue-600 hover:text-blue-900">
                       <Pencil className="h-4 w-4" />
                     </button>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button className="text-red-600 hover:text-red-900">
+                    <button 
+                      className="text-red-600 hover:text-red-900"
+                      onClick={() => handleDelete(unit.id)}
+                    >
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </td>
@@ -95,6 +156,7 @@ export default function ListUnit() {
               ))}
             </tbody>
           </table>
+        )}
         </div>
       </div>
     </div>
