@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { Pencil, Trash2, Search, Clipboard, PlusCircle } from 'lucide-react'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
+import * as XLSX from 'xlsx';
 
 
 type DebitEntry = {
@@ -14,6 +15,7 @@ type DebitEntry = {
   issueDate: string
   valueToPay: string
   unitId: string
+  expectedDate: string
 }
 
 interface Unit {
@@ -26,10 +28,11 @@ interface Unit {
 export default function ListDebits() {
   const [searchQuery, setSearchQuery] = useState('')
   const [debits, setDebits] = useState<DebitEntry[]>([])
-  const [filterDebit, SetFilterDebit] = useState<DebitEntry[]>([])
+  const [filterDebit, setFilterDebit] = useState<DebitEntry[]>([])
   const [checkedItems, setCheckedItems] = useState([]);
   const [checkAll, setCheckAll] = useState(false);
   const [units, setUnits] = useState<Unit[]>([])
+  const [unitFilter, setUnitFilter] = useState('Todos');
 
 
   const handleCheckboxChange = (id: string) => {
@@ -48,7 +51,7 @@ export default function ListDebits() {
         console.log(data)
         
         setDebits(data);
-        SetFilterDebit(data)
+        setFilterDebit(data)
       } catch (error) {
         console.error('Error fetching units:', error);
       }
@@ -57,7 +60,7 @@ export default function ListDebits() {
     fetchDebits();
   }, [])
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     try {
       const response = await fetch(`/api/debitos?id=${id}`, {
         method: 'DELETE',
@@ -65,7 +68,7 @@ export default function ListDebits() {
 
       if (response.ok) {
         // Atualize a lista de unidades após excluir
-        setDebits((prevDebits) => prevDebits.filter((unit) => unit.id !== id));
+        setFilterDebit((prevDebits) => prevDebits.filter((debit) => debit.id !== id));
       } else {
         console.error('Erro ao excluir unidade');
       }
@@ -120,12 +123,41 @@ export default function ListDebits() {
     }
   };
 
-  const handleSelectChange = async (e: HTMLFormElement) => {
-    const filteredDebit = debits.filter(item => item.unitId == e.target.value)
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+  
+    // Filtra os dados considerando tanto o filtro do select quanto a pesquisa
+    const filtered = debits.filter((debit) => {
+      const matchesUnit = unitFilter === 'Todos' || debit.unitId === unitFilter;
+      const matchesSearch = debit.description.toLowerCase().includes(query.toLowerCase());
+      return matchesUnit && matchesSearch;
+    });
+  
+    setFilterDebit(filtered);
+  };
 
-    SetFilterDebit(filteredDebit)
+  const handleSelectChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedUnit = e.target.value;
+    setUnitFilter(selectedUnit);
+
+    // Filtra os dados considerando tanto o filtro do select quanto a pesquisa
+    const filtered = debits.filter((debit) => {
+      const matchesUnit = selectedUnit === 'Todos' || debit.unitId === selectedUnit;
+      const matchesSearch = debit.description.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesUnit && matchesSearch;
+    });
+
+    setFilterDebit(filtered);
   } 
 
+  const handleExportExcel = () => {
+    const ws = XLSX.utils.json_to_sheet(debits);  // Converte os dados para a planilha
+    const wb = XLSX.utils.book_new();  // Cria um novo livro de trabalho
+    XLSX.utils.book_append_sheet(wb, ws, 'Relatório');  // Adiciona a planilha ao livro de trabalho
+
+    // Gera o arquivo Excel e faz o download
+    XLSX.writeFile(wb, 'relatorio_debitos.xlsx');
+  };
 
   return (
     <div className="p-6 flex-1">
@@ -142,13 +174,7 @@ export default function ListDebits() {
               id="unit-search"
               placeholder="Digite aqui a unidade"
               value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value)
-
-                SetFilterDebit(filterDebit.filter(debit => 
-                  debit.description.toLowerCase().includes(searchQuery.toLowerCase())
-                ));
-              }}
+              onChange={(e) => handleSearch(e.target.value)}
               className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
             <div className="absolute inset-y-0 right-0 flex items-center pr-3">
@@ -159,6 +185,7 @@ export default function ListDebits() {
         <div>
             <label className="block text-sm mb-1">Selecione a unidade</label>
             <select className="w-full max-w-xs px-3 py-2 border rounded-md" onChange={handleSelectChange}>
+             <option value="Todos">Todos</option>
               {units.map(unit => (
                 <option key={unit.id} value={unit.id}>{unit.Description}</option>
               ))}
@@ -172,7 +199,7 @@ export default function ListDebits() {
           <button className="px-4 py-2 text-red-600 hover:bg-gray-100 rounded-[5px]">
             Excluir
           </button>
-          <button className="px-4 py-2 border border-gray-300 rounded-[5px] flex items-center space-x-2 hover:bg-gray-100">
+          <button className="px-4 py-2 border border-gray-300 rounded-[5px] flex items-center space-x-2 hover:bg-gray-100" onClick={handleExportExcel}>
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
               <polyline points="7 10 12 15 17 10" />
@@ -240,6 +267,12 @@ export default function ListDebits() {
                 </th>
                 <th
                   scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Data prevista de baixa
+                </th>
+                <th
+                  scope="col"
                   className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
                   Editar
@@ -274,6 +307,9 @@ export default function ListDebits() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {format(new Date(unit.dueDate), 'dd/MM/yyyy', { locale: ptBR })}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {format(new Date(unit.expectedDate), 'dd/MM/yyyy', { locale: ptBR })}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button className="text-blue-600 hover:text-blue-900">
