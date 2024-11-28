@@ -5,6 +5,7 @@ import { Pencil, Trash2, Search, Clipboard, PlusCircle } from 'lucide-react'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import * as XLSX from 'xlsx';
+import Link from 'next/link'
 
 
 type DebitEntry = {
@@ -151,11 +152,69 @@ export default function ListDebits() {
   } 
 
   const handleExportExcel = () => {
-    const ws = XLSX.utils.json_to_sheet(debits);  // Converte os dados para a planilha
-    const wb = XLSX.utils.book_new();  // Cria um novo livro de trabalho
-    XLSX.utils.book_append_sheet(wb, ws, 'Relatório');  // Adiciona a planilha ao livro de trabalho
+    // const ws = XLSX.utils.json_to_sheet(debits);  // Converte os dados para a planilha
+    // const wb = XLSX.utils.book_new();  // Cria um novo livro de trabalho
+    // XLSX.utils.book_append_sheet(wb, ws, 'Relatório');  // Adiciona a planilha ao livro de trabalho
 
-    // Gera o arquivo Excel e faz o download
+    // // Gera o arquivo Excel e faz o download
+    // XLSX.writeFile(wb, 'relatorio_debitos.xlsx');
+
+    const wb = XLSX.utils.book_new();
+    const ws_data = [
+      ['Descrição', 'Valor'],
+      ['', ''],
+      ['ISS NOTA NEW MED', 'R$ 12.214,00'],
+      ['ISS RETIDO CECOR 2/10', 'R$ 4.500,00'],
+      ['ROBERTO ***', 'R$ 9.000,00'],
+      ['TAXA BANCARIA SHILD', 'R$ 4.020,00'],
+      ['ISS TRIMESTRE NEW MED', 'R$ 2.400,00'],
+      ['', ''],
+      ['CORDIS', ''],
+      ['NF 9301 VALOR 16875,00 VENC 07/10', 'R$ 16.875,00'],
+      ['', ''],
+      ['MICROPORT', ''],
+      ['NF 47213/3 VALOR 23997,00 VENC 10/10', 'R$ 23.997,00'],
+      ['NF 48494/3 VALOR 2000,00', 'R$ 2.000,00'],
+      ['', ''],
+      ['LITORAL', ''],
+      ['NF 166977 VALOR 17500,00 *** VENC 15/10', 'R$ 17.500,00'],
+      ['NF 11284 STENTS RECIFE 2/3', 'R$ 6.000,00'],
+      ['NF 20921 VALOR 1400,00 VENC 28/10', 'R$ 1.400,00'],
+      ['NF 20556 VALOR 2670,00 VENC 04/10', 'R$ 2.670,00'],
+      ['100 TIG DEPOSITO 084.847.508-92', 'R$ 3.800,00'],
+      ['', ''],
+      ['NOBRE', ''],
+      ['DEPOSITO EM CONTA', 'R$ 20.000,00']
+    ];
+
+    // Create worksheet
+    const ws = XLSX.utils.aoa_to_sheet(ws_data);
+
+    // Set column widths
+    ws['!cols'] = [
+      { wch: 40 }, // Column A width
+      { wch: 15 }  // Column B width
+    ];
+
+    // Style the header and section headers
+    const boldStyle = { font: { bold: true } };
+    const headerStyle = { font: { bold: true, sz: 14 } };
+
+    ws['A1'].s = headerStyle;
+    ws['A2'].s = boldStyle;
+    ws['B2'].s = boldStyle;
+
+    // Bold the section headers
+    const sectionHeaders = ['A10', 'A13', 'A17', 'A24'];
+    sectionHeaders.forEach(cell => {
+      if (ws[cell]) ws[cell].s = boldStyle;
+    });
+
+    // Add the worksheet to workbook
+    XLSX.utils.book_append_sheet(wb, ws, 'Débitos');
+
+    // Write to buffer
+    const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
     XLSX.writeFile(wb, 'relatorio_debitos.xlsx');
   };
 
@@ -312,9 +371,9 @@ export default function ListDebits() {
                     {format(new Date(unit.expectedDate), 'dd/MM/yyyy', { locale: ptBR })}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button className="text-blue-600 hover:text-blue-900">
+                    <Link href={`/debitos/editar?id=${unit.id}`}>
                       <Pencil className="h-4 w-4" />
-                    </button>
+                    </Link>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button 

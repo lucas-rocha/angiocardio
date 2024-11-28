@@ -29,32 +29,6 @@ export default function DebitosRegistro() {
   const [issueDate, setIssueDate] = useState('')
   const [expectedDate, SetExpectedDate] = useState('')
   const [dueDate, setDueDate] = useState('')
-  const [entries, setEntries] = useState<DebitEntry[]>([
-    {
-      id: '1',
-      description: 'NF 20957 VALOR 1700,00 VENC 15/10',
-      value: 1700.0,
-      dueDate: '2024-01-07'
-    },
-    {
-      id: '2',
-      description: 'NF 1584 ETINIT RECIFE 2/3',
-      value: 6000.0,
-      dueDate: '2024-01-07'
-    },
-    {
-      id: '3',
-      description: 'NF 2099 VALOR 1400,00 VENC 28/10',
-      value: 1400.0,
-      dueDate: '2024-01-07'
-    },
-    {
-      id: '4',
-      description: 'NF 20956 VALOR 2670,00 VENC 04/10',
-      value: 2670.0,
-      dueDate: '2024-01-07'
-    }
-  ])
   const [units, setUnits] = useState<Unit[]>([])
 
   useEffect(() => {
@@ -62,7 +36,6 @@ export default function DebitosRegistro() {
       try {
         const response = await fetch('/api/unidades');
         const data = await response.json();
-        console.log(data)
         
         setUnits(data);
       } catch (error) {
@@ -93,7 +66,7 @@ export default function DebitosRegistro() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault() 
 
-    console.log(description, selectedUnit, valueToPay, issueDate, expectedDate, dueDate)
+    console.log(description, "sadasd: ", selectedUnit, valueToPay, issueDate, expectedDate, dueDate)
 
     const response = await fetch('/api/debitos', {
       method: 'POST',
@@ -110,7 +83,7 @@ export default function DebitosRegistro() {
        }),
     });
   }
-
+  
   const handleSelectChange = (e: React.FormEvent) => {
     setSelectedUnit(e.target.value);
   };

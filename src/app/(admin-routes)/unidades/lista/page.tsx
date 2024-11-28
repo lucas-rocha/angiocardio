@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import { Pencil, Trash2, Search, Clipboard, PlusCircle } from 'lucide-react'
+import Link from 'next/link'
+import Swal from 'sweetalert2';
+
 
 interface Unit {
   id: number
@@ -12,6 +15,16 @@ interface Unit {
 export default function ListUnit() {
   const [searchQuery, setSearchQuery] = useState('')
   const [units, setUnits] = useState<Unit[]>([])
+
+  const handleError = () => {
+    Swal.fire({
+      title: 'Erro!',
+      text: 'Erro ao excluir unidade pois já possui lançamento!',
+      icon: 'success',
+      confirmButtonText: 'OK',
+      timer: 3000
+    });
+  };
 
   useEffect(() => {
     async function fetchUnits() {
@@ -40,6 +53,7 @@ export default function ListUnit() {
         setUnits((prevUnits) => prevUnits.filter((unit) => unit.id !== id));
       } else {
         console.error('Erro ao excluir unidade');
+        handleError()
       }
     } catch (error) {
       console.error('Erro ao excluir unidade:', error);
@@ -141,7 +155,9 @@ export default function ListUnit() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button className="text-blue-600 hover:text-blue-900">
+                    <Link href={`/unidades/editar?id=${unit.id}`}>
                       <Pencil className="h-4 w-4" />
+                    </Link>
                     </button>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
