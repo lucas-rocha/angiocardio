@@ -5,7 +5,6 @@ import { Pencil, Trash2, Search, Clipboard, PlusCircle } from 'lucide-react'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import Link from 'next/link'
-import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 
 
 type DebitEntry = {
@@ -30,7 +29,7 @@ export default function ListDebits() {
   const [searchQuery, setSearchQuery] = useState('')
   const [debits, setDebits] = useState<DebitEntry[]>([])
   const [filterDebit, setFilterDebit] = useState<DebitEntry[]>([])
-  const [checkedItems, setCheckedItems] = useState([]);
+  const [checkedItems, setCheckedItems] = useState<string[]>([]);
   const [checkAll, setCheckAll] = useState(false);
   const [units, setUnits] = useState<Unit[]>([])
   const [unitFilter, setUnitFilter] = useState('Todos');
@@ -39,7 +38,7 @@ export default function ListDebits() {
   const handleCheckboxChange = (id: string) => {
     setCheckedItems((prev: any) =>
       prev.includes(id)
-        ? prev.filter((itemId) => itemId !== id)
+        ? prev.filter((itemId: string) => itemId !== id)
         : [...prev, id]
     );
   };
@@ -305,7 +304,7 @@ export default function ListDebits() {
                   {new Intl.NumberFormat('pt-BR', {
                       style: 'currency',
                       currency: 'BRL'
-                    }).format(unit.valueToPay)}
+                    }).format(isNaN(Number(unit.valueToPay)) ? 0 : Number(unit.valueToPay))}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {format(new Date(unit.dueDate), 'dd/MM/yyyy', { locale: ptBR })}
