@@ -1,6 +1,6 @@
 'use client'
 
-import { use, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { CalendarIcon, Clipboard, Pencil, PlusCircle, Trash2 } from 'lucide-react'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
@@ -15,13 +15,12 @@ type DebitEntry = {
 }
 
 interface Unit {
-  id: number
+  id: string
   Description: string
   CNP: string
 }
 
 export default function DebitosRegistro() {
-  const [unit, setUnit] = useState('')
   const [debits, setDebits] = useState<DebitEntry[]>([])
   const [description, setDescription] = useState('')
   const [valueToPay, setValueToPay] = useState('')
@@ -47,6 +46,12 @@ export default function DebitosRegistro() {
   }, [])
 
   useEffect(() => {
+    if (units.length > 0) {
+      setSelectedUnit(units[0].id); // Define a primeira unidade como selecionada
+    }
+  }, [units])
+
+  useEffect(() => {
     async function fetchDebits() {
       try {
         const response = await fetch('/api/debitos');
@@ -66,25 +71,32 @@ export default function DebitosRegistro() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault() 
 
-    console.log(description, "sadasd: ", selectedUnit, valueToPay, issueDate, expectedDate, dueDate)
+    try {
+      const response = await fetch('/api/debitos', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          description,
+          valueToPay,
+          dueDate,
+          expectedDate,
+          issueDate,
+          unitId: selectedUnit
+         }),
+      });
 
-    const response = await fetch('/api/debitos', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ 
-        description,
-        valueToPay,
-        dueDate,
-        expectedDate,
-        issueDate,
-        unitId: selectedUnit
-       }),
-    });
+      if (response.ok) {
+        const data = await response.json();
+        setDebits((prevDebits) => [...prevDebits, data]);
+      }
+    } catch (error) {
+      console.log(error)
+    }
   }
   
-  const handleSelectChange = (e: React.FormEvent) => {
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedUnit(e.target.value);
   };
 
@@ -256,7 +268,7 @@ export default function DebitosRegistro() {
                   {new Intl.NumberFormat('pt-BR', {
                       style: 'currency',
                       currency: 'BRL'
-                    }).format(debit.valueToPay)}
+                    }).format(Number(debit.valueToPay))}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {format(new Date(debit.dueDate), 'dd/MM/yyyy', { locale: ptBR })}

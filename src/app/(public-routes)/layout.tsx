@@ -9,6 +9,8 @@ interface PublicLayoutProps {
 
 export default async function PublicLayout({ children }: PublicLayoutProps) {
   const session = await getServerSession(nextAuthOptions)
+
+  console.log(session)
   
   if(session) {
     redirect('/dashboard')
