@@ -48,10 +48,11 @@ export default function ListDebits() {
       try {
         const response = await fetch('/api/debitos');
         const data = await response.json();
-        console.log(data)
         
         setDebits(data);
         setFilterDebit(data)
+
+        console.log(data)
       } catch (error) {
         console.error('Error fetching units:', error);
       }

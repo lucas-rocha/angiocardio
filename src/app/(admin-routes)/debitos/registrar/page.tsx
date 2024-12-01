@@ -29,6 +29,7 @@ export default function DebitosRegistro() {
   const [expectedDate, SetExpectedDate] = useState('')
   const [dueDate, setDueDate] = useState('')
   const [units, setUnits] = useState<Unit[]>([])
+  const [isFirstType, setIsFirstType] = useState(true)
 
   useEffect(() => {
     async function fetchUnits() {
@@ -159,7 +160,11 @@ export default function DebitosRegistro() {
                   type="date"
                   className="w-full px-3 py-2 border rounded-md"
                   value={dueDate}
-                  onChange={(e) => setDueDate(e.target.value)}
+                  onChange={(e) => {
+                    setDueDate(e.target.value)
+                    
+                    SetExpectedDate(e.target.value)
+                  }}
                 />
                 <CalendarIcon className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
               </div>
