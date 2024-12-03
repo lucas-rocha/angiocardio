@@ -1,27 +1,30 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Pencil, Trash2, Search, Clipboard, PlusCircle } from 'lucide-react'
+import { Pencil, Trash2, Search, Clipboard, PlusCircle, CalendarIcon } from 'lucide-react'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import Link from 'next/link'
+import transformData from '@/utils/dataToData'
 
 
 type DebitEntry = {
-  id: string
-  description: string
-  value: number
-  dueDate: string
-  issueDate: string
-  valueToPay: string
-  unitId: string
-  expectedDate: string
+  id: string;
+  description: string;
+  valueToPay: string;
+  dueDate: string;
+  expectedDate: string;
+  issueDate: string;
+  IsBaixa: boolean;
+  baixaDate: string;
+  unitId: string;
+  unit: Unit;
 }
 
 interface Unit {
-  id: number
+  id: string
   Description: string
-  CNP: string
+  CNPJ: string
 }
 
 
@@ -92,7 +95,6 @@ export default function ListDebits() {
       try {
         const response = await fetch('/api/unidades');
         const data = await response.json();
-        console.log(data)
         
         setUnits(data);
       } catch (error) {
@@ -141,18 +143,27 @@ export default function ListDebits() {
     const selectedUnit = e.target.value;
     setUnitFilter(selectedUnit);
 
-    // Filtra os dados considerando tanto o filtro do select quanto a pesquisa
-    const filtered = debits.filter((debit) => {
-      const matchesUnit = selectedUnit === 'Todos' || debit.unitId === selectedUnit;
-      const matchesSearch = debit.description.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesUnit && matchesSearch;
-    });
+    // // Filtra os dados considerando tanto o filtro do select quanto a pesquisa
+    // const filtered = debits.filter((debit) => {
+    //   const matchesUnit = selectedUnit === 'Todos' || debit.unitId === selectedUnit;
+    //   const matchesSearch = debit.description.toLowerCase().includes(searchQuery.toLowerCase());
+    //   return matchesUnit && matchesSearch;
+    // });
 
-    setFilterDebit(filtered);
+    // setFilterDebit(filtered);
   } 
 
   const downloadPDF = async () => {
-    const response = await fetch("/api/pdf");
+    const transformedData = transformData(filterDebit)
+
+    const response = await fetch("/api/pdf", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(transformedData),
+    });
+
     const blob = await response.blob();
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -161,6 +172,7 @@ export default function ListDebits() {
     link.click();
   };
 
+
   return (
     <div className="p-6 flex-1">
        <h1 className="text-xl font-semibold text-gray-900 mb-6">Histórico de Despesas</h1>
@@ -168,7 +180,7 @@ export default function ListDebits() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label htmlFor="unit-search" className="block text-sm font-medium text-gray-700 mb-1">
-            PProcurar despesa pela descrição
+            Procurar despesa pela descrição
           </label>
           <div className="relative">
             <input
@@ -185,14 +197,14 @@ export default function ListDebits() {
           </div>
         </div>
         <div>
-            <label className="block text-sm mb-1">Selecione a unidade</label>
-            <select className="w-full max-w-xs px-3 py-2 border rounded-md" onChange={handleSelectChange}>
-             <option value="Todos">Todos</option>
-              {units.map(unit => (
-                <option key={unit.id} value={unit.id}>{unit.Description}</option>
-              ))}
-            </select>
-          </div>
+          <label className="block text-sm mb-1">Selecione a unidade</label>
+          <select className="w-full max-w-xs px-3 py-2 border rounded-md" onChange={handleSelectChange}>
+            <option value="Todos">Todos</option>
+            {units.map(unit => (
+              <option key={unit.id} value={unit.id}>{unit.Description}</option>
+            ))}
+          </select>
+        </div>
 
       </div>
 
@@ -275,7 +287,7 @@ export default function ListDebits() {
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
                   Editar
                 </th>
@@ -285,10 +297,18 @@ export default function ListDebits() {
                 >
                   Excluir
                 </th>
+                {checkedItems.length !== 0 && (
+                  <th
+                  scope="col"
+                  className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Data de baixa
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filterDebit.map((unit) => (
+              {filterDebit.map((unit, index) => (
                 <tr key={unit.id}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <input
@@ -326,6 +346,11 @@ export default function ListDebits() {
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </td>
+                  {checkedItems.length !== 0 && (
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      {format(new Date(unit.baixaDate), 'dd/MM/yyyy', { locale: ptBR })}
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>

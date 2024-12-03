@@ -103,9 +103,9 @@ export default function ListDebits() {
     fetchUnits();
   }, [])
 
-  const updateDebits = async () => {
+  const updateCredits = async () => {
     try {
-      const response = await fetch('/api/debitos', {
+      const response = await fetch('/api/creditos', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -209,7 +209,7 @@ export default function ListDebits() {
             </svg>
             <span>EXPORTAR</span>
           </button>
-          <button className="px-4 py-2 bg-teal-700 text-white rounded-[5px] hover:bg-teal-800" onClick={updateDebits}>
+          <button className="px-4 py-2 bg-teal-700 text-white rounded-[5px] hover:bg-teal-800" onClick={updateCredits}>
             Dar baixa
           </button>
         </div>

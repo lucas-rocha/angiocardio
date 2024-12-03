@@ -68,3 +68,18 @@ export async function POST(request: Request) {
     await prisma.$disconnect();
   }
 }
+
+export async function PATCH(request: Request) {
+  const data = await request.json()
+
+  const updatedCredits = await prisma.credits.updateMany({
+    where: {
+      id: { in: data.ids }
+    },
+    data: {
+      IsBaixa: true
+    }
+  })
+  
+  return NextResponse.json(data, { status: 201 });
+}

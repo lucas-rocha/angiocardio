@@ -274,7 +274,7 @@ export default function DebitosRegistro() {
                     />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {debit.unit.Description}
+                    {/* {debit.unit.Description} */}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {debit.description}

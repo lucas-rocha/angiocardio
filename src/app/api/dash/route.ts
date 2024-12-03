@@ -2,38 +2,36 @@ import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import fs from "fs";
 import path from "path";
 
-// const data = [
-//   ["DESCRIÇÃO", "DATA DE EMISSÃO", "VENCIMENTO", "DATA DE QUITAÇÃO", "VALOR", "STATUS"],
+export async function GET(request: Request) {
+  const data = [
+    ["DESCRIÇÃO", "DATA DE EMISSÃO", "VENCIMENTO", "DATA DE QUITAÇÃO", "VALOR", "STATUS"],
 
-//   ["ISS NOTA NEW MED", "-", "-", "-", "R$ 12.214,00", "Pago"],
-//   ["ISS RETIDO CECOR 2/10", "01/10", "02/10", "03/10", "R$ 4.500,00", "Pendente"],
-//   ["ROBERTO ***", "-", "-", "-", "R$ 9.000,00", "Pago"],
-//   ["TAXA BANCARIA SHILD", "-", "-", "-", "R$ 4.020,00", "Pendente"],
-//   ["ISS TRIMESTRE NEW MED", "-", "-", "-", "R$ 2.400,00", "Pago"],
+    ["ISS NOTA NEW MED", "-", "-", "-", "R$ 12.214,00", "Pago"],
+    ["ISS RETIDO CECOR 2/10", "01/10", "02/10", "03/10", "R$ 4.500,00", "Pendente"],
+    ["ROBERTO ***", "-", "-", "-", "R$ 9.000,00", "Pago"],
+    ["TAXA BANCARIA SHILD", "-", "-", "-", "R$ 4.020,00", "Pendente"],
+    ["ISS TRIMESTRE NEW MED", "-", "-", "-", "R$ 2.400,00", "Pago"],
 
-//   ["CORDIS", "", "", "", "", ""],
-//   ["NF 9301 VALOR 16875,00 VENC 07/10", "05/10", "07/10", "-", "R$ 16.875,00", "Pendente"],
+    ["CORDIS", "", "", "", "", ""],
+    ["NF 9301 VALOR 16875,00 VENC 07/10", "05/10", "07/10", "-", "R$ 16.875,00", "Pendente"],
 
-//   ["MICROPORT", "", "", "", "", ""],
-//   ["NF 47213/3 VALOR 23997,00 VENC 10/10", "08/10", "10/10", "-", "R$ 23.997,00", "Pago"],
-//   ["NF 48494/3 VALOR 2000,00", "-", "-", "-", "R$ 2.000,00", "Pendente"],
+    ["MICROPORT", "", "", "", "", ""],
+    ["NF 47213/3 VALOR 23997,00 VENC 10/10", "08/10", "10/10", "-", "R$ 23.997,00", "Pago"],
+    ["NF 48494/3 VALOR 2000,00", "-", "-", "-", "R$ 2.000,00", "Pendente"],
 
-//   ["LITORAL", "", "", "", "", ""],
-//   ["NF 166977 VALOR 17500,00 *** VENC 15/10", "12/10", "15/10", "-", "R$ 17.500,00", "Pago"],
-//   ["NF 11284 STENTS RECIFE 2/3", "-", "-", "-", "R$ 6.000,00", "Pendente"],
-//   ["NF 20921 VALOR 1400,00 VENC 28/10", "25/10", "28/10", "-", "R$ 1.400,00", "Pendente"],
-//   ["NF 20556 VALOR 2670,00 VENC 04/10", "02/10", "04/10", "-", "R$ 2.670,00", "Pago"],
-//   ["100 TIG DEPOSITO 084.847.508-92", "-", "-", "-", "R$ 3.800,00", "Pago"],
-//   ["100 TIG DEPOSITO 084.847.508-92", "-", "-", "-", "R$ 3.800,00", "Pago"],
-//   ["100 TIG DEPOSITO 084.847.508-92", "-", "-", "-", "R$ 3.800,00", "Pago"],
+    ["LITORAL", "", "", "", "", ""],
+    ["NF 166977 VALOR 17500,00 *** VENC 15/10", "12/10", "15/10", "-", "R$ 17.500,00", "Pago"],
+    ["NF 11284 STENTS RECIFE 2/3", "-", "-", "-", "R$ 6.000,00", "Pendente"],
+    ["NF 20921 VALOR 1400,00 VENC 28/10", "25/10", "28/10", "-", "R$ 1.400,00", "Pendente"],
+    ["NF 20556 VALOR 2670,00 VENC 04/10", "02/10", "04/10", "-", "R$ 2.670,00", "Pago"],
+    ["100 TIG DEPOSITO 084.847.508-92", "-", "-", "-", "R$ 3.800,00", "Pago"],
+    ["100 TIG DEPOSITO 084.847.508-92", "-", "-", "-", "R$ 3.800,00", "Pago"],
+    ["100 TIG DEPOSITO 084.847.508-92", "-", "-", "-", "R$ 3.800,00", "Pago"],
 
-//   ["NOBRE", "", "", "", "", ""],
-//   ["DEPOSITO EM CONTA", "-", "-", "-", "R$ 20.000,00", "Pago"],
-//   ["TOTAL", "", "", "", "R$ 425.087,50", ""]
-// ];
-
-export async function POST(request: Request) {
-  const data = await request.json();
+    ["NOBRE", "", "", "", "", ""],
+    ["DEPOSITO EM CONTA", "-", "-", "-", "R$ 20.000,00", "Pago"],
+    ["TOTAL", "", "", "", "R$ 425.087,50", ""]
+  ];
 
   const pdfDoc = await PDFDocument.create();
 
@@ -127,23 +125,22 @@ export async function POST(request: Request) {
     // Desenha a tabela
     data.forEach((row, index) => {
       const [desc, emission, due, paymentDate, value, status] = row; // Novo valor aqui
-  
+
       const isBold = ["DESCRIÇÃO", "DATA DE EMISSÃO", "VENCIMENTO", "DATA DE QUITAÇÃO", "VALOR", "STATUS", "TOTAL"].includes(
         desc.trim().toUpperCase()
-      ) || (index > 0 && !emission && !due && !paymentDate && !value && !status); // Linha de unidade
-  
+      );
       const currentFont = isBold ? boldFont : font;
-  
+
       // Adiciona nova página se necessário
       if (y - rowHeight < 50) {
         page = addPage();
         y = 500;
       }
-  
+
       // Desenhar células
       const columns = [desc, emission, due, paymentDate, value, status]; // Adicionado paymentDate aqui
       let x = tableStartX;
-  
+
       columns.forEach((text, colIndex) => {
         if (colIndex === 0) {
           // Quebra de linha para a primeira coluna
@@ -157,10 +154,10 @@ export async function POST(request: Request) {
             color: rgb(0, 0, 0),
           });
         }
-  
+
         x += colWidths[colIndex];
       });
-  
+
       // Desenhar linhas horizontais e verticais
       page.drawLine({
         start: { x: tableStartX, y },
@@ -168,7 +165,7 @@ export async function POST(request: Request) {
         thickness: 1,
         color: rgb(0, 0, 0),
       });
-  
+
       for (let i = 0; i <= colWidths.length; i++) {
         const lineX = tableStartX + colWidths.slice(0, i).reduce((sum, w) => sum + w, 0);
         page.drawLine({
@@ -178,20 +175,10 @@ export async function POST(request: Request) {
           color: rgb(0, 0, 0),
         });
       }
-  
+
       y -= rowHeight;
     });
-  
-    // Desenhar borda inferior da última linha
-    page.drawLine({
-      start: { x: tableStartX, y },
-      end: { x: tableStartX + tableWidth, y },
-      thickness: 1,
-      color: rgb(0, 0, 0),
-    });
   };
-  
-  
 
   drawTable();
 
