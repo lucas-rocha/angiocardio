@@ -12,7 +12,6 @@ type DebitEntry = {
   dueDate: string
   issueDate: string
   valueToPay: string
-  unit: Unit
 }
 
 interface Unit {
@@ -21,7 +20,7 @@ interface Unit {
   CNP: string
 }
 
-export default function DebitosRegistro() {
+export default function CreditosRegistro() {
   const [debits, setDebits] = useState<DebitEntry[]>([])
   const [description, setDescription] = useState('')
   const [valueToPay, setValueToPay] = useState('')
@@ -74,7 +73,7 @@ export default function DebitosRegistro() {
     e.preventDefault() 
 
     try {
-      const response = await fetch('/api/debitos', {
+      const response = await fetch('/api/creditos', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -104,7 +103,7 @@ export default function DebitosRegistro() {
 
   return (
     <div className="p-6 flex-1">
-      <h1 className="text-xl font-medium">Adicionar Despesa</h1>
+      <h1 className="text-xl font-medium">Registrar Lançamento de débito</h1>
       
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-4">
@@ -171,7 +170,7 @@ export default function DebitosRegistro() {
               </div>
             </div>
             <div>
-              <label className="block text-sm mb-1">Data prevista de pagamento</label>
+              <label className="block text-sm mb-1">Data prevista de baixa</label>
               <div className="relative">
                 <input
                   type="date"
@@ -195,7 +194,7 @@ export default function DebitosRegistro() {
 
 
       <div className="mt-6">
-        <h2 className="text-sm font-medium text-gray-700 mb-4">Últimas despesas adicionadas</h2>
+        <h2 className="text-sm font-medium text-gray-700 mb-4">Lançamentos atuais</h2>
         <div className="border rounded-lg overflow-hidden">
         {units.length === 0 ? (
           <div className="flex justify-center items-center py-10 text-center">
@@ -225,12 +224,6 @@ export default function DebitosRegistro() {
                     type="checkbox"
                     className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Unidade
                 </th>
                 <th
                   scope="col"
@@ -272,9 +265,6 @@ export default function DebitosRegistro() {
                       type="checkbox"
                       className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {debit.unit.Description}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {debit.description}

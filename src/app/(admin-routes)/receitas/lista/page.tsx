@@ -46,7 +46,7 @@ export default function ListDebits() {
   useEffect(() => {
     async function fetchDebits() {
       try {
-        const response = await fetch('/api/debitos');
+        const response = await fetch('/api/creditos');
         const data = await response.json();
         
         setDebits(data);
@@ -63,7 +63,7 @@ export default function ListDebits() {
 
   const handleDelete = async (id: string) => {
     try {
-      const response = await fetch(`/api/debitos?id=${id}`, {
+      const response = await fetch(`/api/creditos?id=${id}`, {
         method: 'DELETE',
       });
 
@@ -163,12 +163,12 @@ export default function ListDebits() {
 
   return (
     <div className="p-6 flex-1">
-       <h1 className="text-xl font-semibold text-gray-900 mb-6">Histórico de Despesas</h1>
+       <h1 className="text-xl font-semibold text-gray-900 mb-6">Lista de todos os lançamentos</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label htmlFor="unit-search" className="block text-sm font-medium text-gray-700 mb-1">
-            PProcurar despesa pela descrição
+            Procurar por débito
           </label>
           <div className="relative">
             <input
@@ -216,7 +216,7 @@ export default function ListDebits() {
       )}
 
       <div className="mt-6">
-        <h2 className="text-sm font-medium text-gray-700 mb-4">Histórico de despesas</h2>
+        <h2 className="text-sm font-medium text-gray-700 mb-4">Lançamentos atuais</h2>
         <div className="border rounded-lg overflow-hidden">
         {debits.length === 0 ? (
           <div className="flex justify-center items-center py-10 text-center">
