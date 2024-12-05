@@ -6,6 +6,7 @@ import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import Link from 'next/link'
 import transformData from '@/utils/dataToData'
+import EditData from '@/components/EditData'
 
 
 type DebitEntry = {
@@ -27,6 +28,10 @@ interface Unit {
   CNPJ: string
 }
 
+interface UpdateDate {
+  id: string;
+  date: string;
+}
 
 export default function ListDebits() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -37,6 +42,7 @@ export default function ListDebits() {
   const [units, setUnits] = useState<Unit[]>([])
   const [unitFilter, setUnitFilter] = useState('Todos');
   const [isEditing, setIsEditing] = useState(false);
+  const [updateDateAndId, setUpdateDateAndId] = useState<UpdateDate[]>([])
 
 
   const handleCheckboxChange = (id: string) => {
@@ -177,6 +183,25 @@ export default function ListDebits() {
     return format(new Date(date), 'dd/MM/yyyy', { locale: ptBR })
   }
 
+
+  const saveDate = (id: string, date: string) => {
+    setUpdateDateAndId((prev) => {
+      // Verifica se o ID já existe no array
+      const exists = prev.some((item) => item.id === id);
+  
+      if (exists) {
+        // Substitui o objeto com o mesmo ID
+        return prev.map((item) =>
+          item.id === id ? { ...item, date } : item
+        );
+      } else {
+        // Adiciona um novo objeto ao array
+        return [...prev, { id, date }];
+      }
+    });
+
+    console.log(updateDateAndId)
+  }
 
   return (
     <div className="p-6 flex-1">
@@ -352,13 +377,11 @@ export default function ListDebits() {
                     </button>
                   </td>
                   {checkedItems.length !== 0 && (
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium" onClick={() => !isEditing && setIsEditing(true)}>
-                      {isEditing ? (
-                        "dadsadad"
-                      ) : (
-                        "lkdlakld"
-                      )}
-                    </td>
+                    <EditData 
+                      id={unit.id} 
+                      value={unit.baixaDate} 
+                      onSave={(id: string, newDate: string) => saveDate(unit.id, newDate)}
+                    />
                   )}
                 </tr>
               ))}
