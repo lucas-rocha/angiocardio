@@ -8,8 +8,6 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const id = url.searchParams.get('id');
 
-    console.log("Qual foi", id) 
-
     if(id) {
       const debit = await prisma.debits.findUnique({
         where: { id },

@@ -36,6 +36,7 @@ export default function ListDebits() {
   const [checkAll, setCheckAll] = useState(false);
   const [units, setUnits] = useState<Unit[]>([])
   const [unitFilter, setUnitFilter] = useState('Todos');
+  const [isEditing, setIsEditing] = useState(false);
 
 
   const handleCheckboxChange = (id: string) => {
@@ -171,6 +172,10 @@ export default function ListDebits() {
     link.download = "relatorio.pdf";
     link.click();
   };
+
+  const formatDate = (date: string) => {
+    return format(new Date(date), 'dd/MM/yyyy', { locale: ptBR })
+  }
 
 
   return (
@@ -347,8 +352,12 @@ export default function ListDebits() {
                     </button>
                   </td>
                   {checkedItems.length !== 0 && (
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      {format(new Date(unit.baixaDate), 'dd/MM/yyyy', { locale: ptBR })}
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium" onClick={() => !isEditing && setIsEditing(true)}>
+                      {isEditing ? (
+                        "dadsadad"
+                      ) : (
+                        "lkdlakld"
+                      )}
                     </td>
                   )}
                 </tr>

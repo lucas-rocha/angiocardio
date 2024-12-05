@@ -2,44 +2,12 @@ import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import fs from "fs";
 import path from "path";
 
-export async function GET(request: Request) {
-  const data = [
-    ["DESCRIÇÃO", "DATA DE EMISSÃO", "VENCIMENTO", "DATA DE QUITAÇÃO", "VALOR", "STATUS"],
-
-    ["ISS NOTA NEW MED", "-", "-", "-", "R$ 12.214,00", "Pago"],
-    ["ISS RETIDO CECOR 2/10", "01/10", "02/10", "03/10", "R$ 4.500,00", "Pendente"],
-    ["ROBERTO ***", "-", "-", "-", "R$ 9.000,00", "Pago"],
-    ["TAXA BANCARIA SHILD", "-", "-", "-", "R$ 4.020,00", "Pendente"],
-    ["ISS TRIMESTRE NEW MED", "-", "-", "-", "R$ 2.400,00", "Pago"],
-
-    ["CORDIS", "", "", "", "", ""],
-    ["NF 9301 VALOR 16875,00 VENC 07/10", "05/10", "07/10", "-", "R$ 16.875,00", "Pendente"],
-
-    ["MICROPORT", "", "", "", "", ""],
-    ["NF 47213/3 VALOR 23997,00 VENC 10/10", "08/10", "10/10", "-", "R$ 23.997,00", "Pago"],
-    ["NF 48494/3 VALOR 2000,00", "-", "-", "-", "R$ 2.000,00", "Pendente"],
-
-    ["LITORAL", "", "", "", "", ""],
-    ["NF 166977 VALOR 17500,00 *** VENC 15/10", "12/10", "15/10", "-", "R$ 17.500,00", "Pago"],
-    ["NF 11284 STENTS RECIFE 2/3", "-", "-", "-", "R$ 6.000,00", "Pendente"],
-    ["NF 20921 VALOR 1400,00 VENC 28/10", "25/10", "28/10", "-", "R$ 1.400,00", "Pendente"],
-    ["NF 20556 VALOR 2670,00 VENC 04/10", "02/10", "04/10", "-", "R$ 2.670,00", "Pago"],
-    ["100 TIG DEPOSITO 084.847.508-92", "-", "-", "-", "R$ 3.800,00", "Pago"],
-    ["100 TIG DEPOSITO 084.847.508-92", "-", "-", "-", "R$ 3.800,00", "Pago"],
-    ["100 TIG DEPOSITO 084.847.508-92", "-", "-", "-", "R$ 3.800,00", "Pago"],
-
-    ["NOBRE", "", "", "", "", ""],
-    ["DEPOSITO EM CONTA", "-", "-", "-", "R$ 20.000,00", "Pago"],
-    ["TOTAL", "", "", "", "R$ 425.087,50", ""]
-  ];
-
+export async function POST(request: Request) {
+  const { debit, credit } = await request.json();
   const pdfDoc = await PDFDocument.create();
-
-  // Fonte
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
   const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-  // Logo
   const logoPath = path.join(process.cwd(), "public", "logo.png");
   const logoBytes = fs.readFileSync(logoPath);
   const logoImage = await pdfDoc.embedPng(logoBytes);
@@ -47,141 +15,194 @@ export async function GET(request: Request) {
 
   const pageWidth = 800;
   const pageHeight = 600;
-
-  // Ajustar as larguras das colunas para que a tabela ocupe toda a largura
   const colWidths = [
-    (pageWidth - 40) * 0.2, // 20% para a primeira coluna (DESCRIÇÃO)
-    (pageWidth - 40) * 0.15, // 15% para a segunda coluna (DATA DE EMISSÃO)
-    (pageWidth - 40) * 0.15, // 15% para a terceira coluna (VENCIMENTO)
-    (pageWidth - 40) * 0.15, // 15% para a quarta coluna (DATA DE QUITAÇÃO)
-    (pageWidth - 40) * 0.2, // 20% para a quinta coluna (VALOR)
-    (pageWidth - 40) * 0.15  // 15% para a sexta coluna (STATUS)
+    (pageWidth - 40) * 0.2,
+    (pageWidth - 40) * 0.15,
+    (pageWidth - 40) * 0.15,
+    (pageWidth - 40) * 0.15,
+    (pageWidth - 40) * 0.2,
+    (pageWidth - 40) * 0.15,
   ];
-  const tableWidth = colWidths.reduce((sum, w) => sum + w, 0); // Largura total da tabela
-  const tableStartX = (pageWidth - tableWidth) / 2; // Posição inicial da tabela
-  let y = 500; // Coordenada inicial Y
+  const tableWidth = colWidths.reduce((sum, w) => sum + w, 0);
+  const tableStartX = (pageWidth - tableWidth) / 2;
+  let y = 500;
   const rowHeight = 25;
+  let pageCount = 1;
 
   const addPage = () => {
     const page = pdfDoc.addPage([pageWidth, pageHeight]);
-
-    // Adicionar logo no canto superior esquerdo
-    page.drawImage(logoImage, {
-      x: 50,
-      y: 520,
-      width: logoDims.width,
-      height: logoDims.height,
-    });
-
-    // Adicionar texto no canto superior direito
-    page.drawText("set/24", {
-      x: 700,
-      y: 550,
-      size: 14,
-      font: boldFont,
-      color: rgb(0, 0, 0),
-    });
-
+    page.drawImage(logoImage, { x: 50, y: 520, width: logoDims.width, height: logoDims.height });
+    page.drawText("set/24", { x: 700, y: 550, size: 14, font: boldFont, color: rgb(0, 0, 0) });
+    drawPageNumber(page)
     return page;
   };
 
-  // Adiciona a primeira página
-  let page = addPage();
-
-  const drawTextInCell = (text: string, x: number, y: number, maxWidth: number, font: any, page: any) => {
-    const words = text.split(' ');
-    let line = '';
-    const lines: string[] = [];
-
-    // Quebra o texto em linhas
-    words.forEach((word) => {
-      const testLine = line + word + ' ';
-      const testWidth = font.widthOfTextAtSize(testLine, 10);
-
-      if (testWidth > maxWidth) {
-        lines.push(line);
-        line = word + ' ';
-      } else {
-        line = testLine;
-      }
+  const drawPageNumber = (page: any) => {
+    const fontSize = 10;
+    page.drawText(`Página ${pageCount}`, {
+      x: pageWidth - 100, // Posição à direita
+      y: 30, // Posição para o rodapé
+      size: fontSize,
+      font: font,
+      color: rgb(0, 0, 0),
     });
-
-    lines.push(line); // Adiciona a última linha
-
-    // Desenha as linhas quebradas com margem
-    const margin = 4; // Margem de 3 pontos entre o texto e a borda
-    lines.forEach((line, i) => {
-      page.drawText(line, {
-        x: x + margin, // Ajuste a posição para incluir a margem
-        y: y - i * 12 - rowHeight / 2,
-        size: 10,
-        font,
-        color: rgb(0, 0, 0),
-      });
-    });
+    pageCount++; // Incrementa o contador
   };
 
-  const drawTable = () => {
-    // Desenha a tabela
-    data.forEach((row, index) => {
-      const [desc, emission, due, paymentDate, value, status] = row; // Novo valor aqui
+  const marginBetweenSections = 30; // Margem entre seções
 
-      const isBold = ["DESCRIÇÃO", "DATA DE EMISSÃO", "VENCIMENTO", "DATA DE QUITAÇÃO", "VALOR", "STATUS", "TOTAL"].includes(
-        desc.trim().toUpperCase()
-      );
+  let totalDebitos = 0;
+let totalCreditos = 0;
+
+const drawTableSection = (data: string[][], title: string, isDebit: boolean) => {
+  // Desenha o título da seção (DÉBITOS ou CRÉDITOS)
+  page.drawText(title, {
+    x: tableStartX,
+    y: y,  // Posição do título
+    size: 14,
+    font: boldFont,
+    color: rgb(0, 0, 0),
+  });
+  y -= rowHeight; // Desce para a linha de separação
+
+  // Linha de separação entre título e a tabela
+  page.drawLine({
+    start: { x: tableStartX, y },
+    end: { x: tableStartX + tableWidth, y },
+    thickness: 1,
+    color: rgb(0, 0, 0),
+  });
+  y -= rowHeight; // Desce para a primeira linha da tabela
+
+  // Desenha a tabela com dados
+  data.forEach((row, index) => {
+    if (y - rowHeight < 50) {
+      // Verifica se o espaço acabou e cria uma nova página
+      page = addPage();  // Cria uma nova página quando chega no limite
+      y = 500;  // Reseta a posição para o topo da nova página
+    }
+
+    let x = tableStartX;
+    row.forEach((text, colIndex) => {
+      // Identifica unidades e coloca em negrito
+      const isUnit = colIndex === 0 && (index === 0 || text.trim().toUpperCase() === text.trim());
+
+      // Define negrito para unidades, descrições e totais
+      const isBold =
+        isUnit || // Texto das unidades
+        ["DESCRIÇÃO", "TOTAL"].includes(row[0].trim().toUpperCase()); // Cabeçalhos ou Totais
+
       const currentFont = isBold ? boldFont : font;
 
-      // Adiciona nova página se necessário
-      if (y - rowHeight < 50) {
-        page = addPage();
-        y = 500;
-      }
-
-      // Desenhar células
-      const columns = [desc, emission, due, paymentDate, value, status]; // Adicionado paymentDate aqui
-      let x = tableStartX;
-
-      columns.forEach((text, colIndex) => {
-        if (colIndex === 0) {
-          // Quebra de linha para a primeira coluna
-          drawTextInCell(text, x, y, colWidths[colIndex], currentFont, page);
-        } else {
-          page.drawText(text, {
-            x: x + 5,
-            y: y - rowHeight / 2,
-            size: 10,
-            font: currentFont,
-            color: rgb(0, 0, 0),
-          });
-        }
-
-        x += colWidths[colIndex];
+      page.drawText(text, {
+        x: x + 5,
+        y: y - rowHeight / 2,
+        size: 10,
+        font: currentFont,
+        color: rgb(0, 0, 0),
       });
+      x += colWidths[colIndex];
+    });
 
-      // Desenhar linhas horizontais e verticais
+    // Desenha as linhas verticais entre as colunas (incluindo entre "VALOR" e "STATUS")
+    let currentX = tableStartX;
+    colWidths.forEach((colWidth, colIndex) => {
+      // Desenha as bordas verticais entre as colunas
       page.drawLine({
-        start: { x: tableStartX, y },
-        end: { x: tableStartX + tableWidth, y },
+        start: { x: currentX, y: y },
+        end: { x: currentX, y: y - rowHeight },
         thickness: 1,
         color: rgb(0, 0, 0),
       });
-
-      for (let i = 0; i <= colWidths.length; i++) {
-        const lineX = tableStartX + colWidths.slice(0, i).reduce((sum, w) => sum + w, 0);
-        page.drawLine({
-          start: { x: lineX, y: y - rowHeight },
-          end: { x: lineX, y },
-          thickness: 1,
-          color: rgb(0, 0, 0),
-        });
-      }
-
-      y -= rowHeight;
+      currentX += colWidth;
     });
-  };
 
-  drawTable();
+    // **Desenha a borda vertical direita em todas as linhas**
+    page.drawLine({
+      start: { x: currentX, y: y },  // Posição final da última coluna
+      end: { x: currentX, y: y - rowHeight },  // Desenha até a linha de baixo
+      thickness: 1,
+      color: rgb(0, 0, 0),
+    });
 
+    // Desenha a linha horizontal entre as linhas da tabela
+    page.drawLine({
+      start: { x: tableStartX, y },
+      end: { x: tableStartX + tableWidth, y },
+      thickness: 1,
+      color: rgb(0, 0, 0),
+    });
+
+    y -= rowHeight;
+
+    // Se for uma linha de total, adicione ao total
+    if (index === data.length - 1) {
+      const value = row[4].replace('R$', '').replace('.', '').replace(',', '.').trim();  // Remove R$ e converte vírgula para ponto
+      const numericValue = parseFloat(value);
+      if (isDebit) {
+        totalDebitos += numericValue;
+      } else {
+        totalCreditos += numericValue;
+      }
+    }
+  });
+
+  // Desenha a borda horizontal na última linha (se necessário)
+  page.drawLine({
+    start: { x: tableStartX, y },
+    end: { x: tableStartX + tableWidth, y },
+    thickness: 1,
+    color: rgb(0, 0, 0),
+  });
+
+  // Ajuste para a próxima seção (CRÉDITOS) ou próxima parte da tabela
+  y -= 50;  // Deixa uma pequena margem entre as seções
+};
+
+// Função para desenhar o lucro ou prejuízo
+const drawLucroOuPrejuizo = (page: any) => {
+  // Calcular lucro ou prejuízo
+  const lucroOuPrejuizo = totalCreditos - totalDebitos; // Créditos menos débitos
+
+  console.log(`Total Débitos: ${totalDebitos}`);
+  console.log(`Total Créditos: ${totalCreditos}`);
+  console.log(`Lucro ou Prejuízo: ${lucroOuPrejuizo}`);
+
+  const resultado = lucroOuPrejuizo >= 0
+    ? `Lucro: R$ ${lucroOuPrejuizo.toFixed(2)}`
+    : `Prejuízo: R$ ${Math.abs(lucroOuPrejuizo).toFixed(2)}`;
+
+  // Desenha o título da seção
+  page.drawText("LUCRO OU PREJUÍZO", {
+    x: tableStartX,
+    y: y,  // Posição do título
+    size: 14,
+    font: boldFont,
+    color: rgb(0, 0, 0),
+  });
+  y -= rowHeight;
+
+  // Desenha o resultado
+  page.drawText(resultado, {
+    x: tableStartX,
+    y: y,  // Posição do texto
+    size: 12,
+    font: boldFont,
+    color: rgb(0, 0, 0),
+  });
+
+  y -= rowHeight * 2;  // Deixa espaço para o final
+};
+
+// Agora, ao desenhar as tabelas de Débitos e Créditos, chamamos as funções:
+
+let page = addPage();
+drawTableSection(debit, "DÉBITOS", true);  // Passa `true` para débitos
+drawTableSection(credit, "CRÉDITOS", false); // Passa `false` para créditos
+
+drawLucroOuPrejuizo(page); // Agora desenha o lucro ou prejuízo com os totais calculados
+
+  
   const pdfBytes = await pdfDoc.save();
   return new Response(pdfBytes, {
     headers: {
@@ -190,3 +211,4 @@ export async function GET(request: Request) {
     },
   });
 }
+

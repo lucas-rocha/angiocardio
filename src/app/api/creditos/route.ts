@@ -28,7 +28,11 @@ export async function GET(request: Request) {
       });
 
     }
-    const debits = await prisma.credits.findMany(); // Substitua 'unit' pelo nome correto do modelo no seu esquema Prisma.
+    const debits = await prisma.credits.findMany({
+      include: {
+        unit: true
+      }
+    }); // Substitua 'unit' pelo nome correto do modelo no seu esquema Prisma.
     return new Response(JSON.stringify(debits), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },

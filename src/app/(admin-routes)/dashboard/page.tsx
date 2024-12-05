@@ -9,21 +9,22 @@ import { getServerSession } from "next-auth";
 import { useEffect, useState } from "react";
 
 type DebitEntry = {
-  id: string
-  description: string
-  value: number
-  dueDate: string
-  issueDate: string
-  valueToPay: string
-  unitId: string
-  expectedDate: string
-  IsBaixa: boolean
+  id: string;
+  description: string;
+  valueToPay: string;
+  dueDate: string;
+  expectedDate: string;
+  issueDate: string;
+  IsBaixa: boolean;
+  baixaDate: string;
+  unitId: string;
+  unit: Unit;
 }
 
 interface Unit {
   id: string
   Description: string
-  CNP: string
+  CNPJ: string
 }
 
 const originalData = [
@@ -119,8 +120,6 @@ export default function Dashboard() {
     const date = new Date()
     const actualYear = date.getFullYear().toString()
 
-
-    console.log(date)
     setYears((prevYear) => {
       if (!prevYear.includes(actualYear)) {
         return [...prevYear, actualYear];
@@ -215,7 +214,29 @@ export default function Dashboard() {
   }
 
   const downloadPDF = async () => {
-    const response = await fetch("/api/dash");
+    // Transforme os dados necessários para o relatório
+    const transformedDebitData = transformData(filteredDebits);
+    const transformedCreditData = transformData(filteredCredits);
+
+    console.log(transformedDebitData)
+    console.log(transformedCreditData)
+  
+    // Monte o payload com dois objetos
+    const payload = {
+      debit: transformedDebitData,
+      credit: transformedCreditData,
+    };
+  
+    // Faça a requisição para gerar o PDF
+    const response = await fetch("/api/dash", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+  
+    // Baixe o arquivo PDF
     const blob = await response.blob();
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -223,6 +244,8 @@ export default function Dashboard() {
     link.download = "relatorio.pdf";
     link.click();
   };
+  
+
 
 
   return (
@@ -277,8 +300,8 @@ export default function Dashboard() {
       </div>
       <ProfitDisplay debit={filteredDebits} credit={filteredCredits}/>
       <div className="flex gap-4">
-        <BillsList data={filteredDebits}/>
-        <UnitList data={units}/>
+        <BillsList data={filteredDebits.slice(0, 5)}/>
+        <UnitList data={units.slice(0, 5)}/>
       </div>
     </div>
   )
