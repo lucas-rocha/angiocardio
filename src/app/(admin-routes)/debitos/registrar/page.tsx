@@ -6,13 +6,16 @@ import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
 type DebitEntry = {
-  id: string
-  description: string
-  value: number
-  dueDate: string
-  issueDate: string
-  valueToPay: string
-  unit: Unit
+  id: string;
+  description: string;
+  valueToPay: string;
+  dueDate: string;
+  expectedDate: string;
+  issueDate: string;
+  IsBaixa: boolean;
+  baixaDate: string;
+  unitId: string;
+  unit: Unit;
 }
 
 interface Unit {
@@ -220,18 +223,6 @@ export default function DebitosRegistro() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th scope="col" className="w-12 px-6 py-3">
-                  <input
-                    type="checkbox"
-                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Unidade
-                </th>
                 <th
                   scope="col"
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -250,6 +241,12 @@ export default function DebitosRegistro() {
                 >
                   Data de Vencimento
                 </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Data prevista de baixa
+                </th>
                 {/* <th
                   scope="col"
                   className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -267,15 +264,6 @@ export default function DebitosRegistro() {
             <tbody className="bg-white divide-y divide-gray-200">
               {debits.map((debit) => (
                 <tr key={debit.id}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <input
-                      type="checkbox"
-                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    />
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {/* {debit.unit.Description} */}
-                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {debit.description}
                   </td>
@@ -287,6 +275,9 @@ export default function DebitosRegistro() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {format(new Date(debit.dueDate), 'dd/MM/yyyy', { locale: ptBR })}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {format(new Date(debit.expectedDate), 'dd/MM/yyyy', { locale: ptBR })}
                   </td>
                   {/* <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button className="text-blue-600 hover:text-blue-900">
