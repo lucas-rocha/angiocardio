@@ -75,18 +75,33 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const data = await request.json()
+  // const data = await request.json()
 
-  const updatedDebits = await prisma.debits.updateMany({
-    where: {
-      id: { in: data.ids }
-    },
-    data: {
-      IsBaixa: true
-    }
-  })
+  // const updatedDebits = await prisma.debits.updateMany({
+  //   where: {
+  //     id: { in: data.ids }
+  //   },
+  //   data: {
+  //     IsBaixa: true
+  //   }
+  // })
+  const { updates } = await request.json();
+
+  try {
+    const results = await Promise.all(
+      updates.map((item: { id: string; dateBaixa: string }) =>
+        prisma.debits.update({
+          where: { id: item.id },
+          data: { baixaDate: item.dateBaixa, IsBaixa: true },
+        })
+      )
+    );
   
-  return NextResponse.json(data, { status: 201 });
+    return NextResponse.json({ success: true, data: results }, { status: 201 });
+  } catch (error) {
+    console.error("Erro ao atualizar os dados:", error);
+    return NextResponse.json({ success: false, message: "Erro ao atualizar os dados." }, { status: 500 });
+  }
 }
 
 export async function DELETE(request: Request) {

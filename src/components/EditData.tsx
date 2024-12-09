@@ -27,7 +27,7 @@ export default function EditData({ id, value, onSave }: EditDataProps) {
         <div>
           <input
             type="date"
-            className="w-full px-3 py-2 border rounded-md"
+            className="px-3 py-2 border rounded-md"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             // onBlur={handleSave}

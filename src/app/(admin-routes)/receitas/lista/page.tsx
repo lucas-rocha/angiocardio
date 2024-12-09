@@ -5,17 +5,21 @@ import { Pencil, Trash2, Search, Clipboard, PlusCircle } from 'lucide-react'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import Link from 'next/link'
+import EditData from '@/components/EditData'
+import Swal from 'sweetalert2'
 
 
 type DebitEntry = {
-  id: string
-  description: string
-  value: number
-  dueDate: string
-  issueDate: string
-  valueToPay: string
-  unitId: string
-  expectedDate: string
+  id: string;
+  description: string;
+  valueToPay: string;
+  dueDate: string;
+  expectedDate: string;
+  issueDate: string;
+  IsBaixa: boolean;
+  baixaDate: string;
+  unitId: string;
+  unit: Unit;
 }
 
 interface Unit {
@@ -24,23 +28,42 @@ interface Unit {
   CNP: string
 }
 
+interface CheckedItem {
+  id: string;
+  dateBaixa: string;
+}
 
 export default function ListDebits() {
   const [searchQuery, setSearchQuery] = useState('')
   const [debits, setDebits] = useState<DebitEntry[]>([])
   const [filterDebit, setFilterDebit] = useState<DebitEntry[]>([])
-  const [checkedItems, setCheckedItems] = useState<string[]>([]);
+  const [checkedItems, setCheckedItems] = useState<CheckedItem[]>([]);
   const [checkAll, setCheckAll] = useState(false);
   const [units, setUnits] = useState<Unit[]>([])
   const [unitFilter, setUnitFilter] = useState('Todos');
 
+  const handleSuccess = () => {
+    Swal.fire({
+      title: 'Sucesso!',
+      text: 'Receita atualizada com sucesso!',
+      icon: 'success',
+      confirmButtonText: 'OK',
+      timer: 3000
+    });
+  };
 
-  const handleCheckboxChange = (id: string) => {
-    setCheckedItems((prev: any) =>
-      prev.includes(id)
-        ? prev.filter((itemId: string) => itemId !== id)
-        : [...prev, id]
+  const handleCheckboxChange = (id: string, dateBaixa: string) => {
+    // setCheckedItems((prev: any) =>
+    //   prev.includes(id)
+    //     ? prev.filter((itemId: string) => itemId !== id)
+    //     : [...prev, id]
+    // );
+    setCheckedItems((prev) =>
+    prev.some((item) => item.id === id)
+      ? prev.filter((item) => item.id !== id) // Remove o item pelo ID
+      : [...prev, { id, dateBaixa }] // Adiciona um novo item
     );
+    console.log(checkedItems)
   };
 
   useEffect(() => {
@@ -59,7 +82,7 @@ export default function ListDebits() {
     }
 
     fetchDebits();
-  }, [])
+  }, [checkedItems])
 
   const handleDelete = async (id: string) => {
     try {
@@ -79,10 +102,19 @@ export default function ListDebits() {
   };
 
   const handleCheckAll = () => {
+    // if (checkAll) {
+    //   setCheckedItems([]); // Desmarca tudo
+    // } else {
+    //   setCheckedItems(debits.map((unit) => unit.id)); // Marca tudo
+    // }
+    // setCheckAll(!checkAll);
     if (checkAll) {
       setCheckedItems([]); // Desmarca tudo
     } else {
-      setCheckedItems(debits.map((unit) => unit.id)); // Marca tudo
+      setCheckedItems(debits.map((unit) => {
+        return { id: unit.id, dateBaixa: unit.baixaDate }
+      })); // Marca tudo
+      console.log(checkedItems)
     }
     setCheckAll(!checkAll);
   };
@@ -103,14 +135,23 @@ export default function ListDebits() {
     fetchUnits();
   }, [])
 
+  const normalizeDates = (items: CheckedItem[]) => {
+    return items.map((item) => ({
+      ...item,
+      dateBaixa: new Date(item.dateBaixa).toISOString(), // Converte para o formato ISO
+    }));
+  };
+
   const updateCredits = async () => {
+    const normalizedItems = normalizeDates(checkedItems);
+
     try {
       const response = await fetch('/api/creditos', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ ids: checkedItems}),
+        body: JSON.stringify({ updates: normalizedItems }),
       });
   
       if (!response.ok) {
@@ -119,6 +160,8 @@ export default function ListDebits() {
   
       const result = await response.json();
       console.log('Resultado:', result);
+      handleSuccess()
+      setCheckedItems([])
     } catch (error) {
       
     }
@@ -159,6 +202,16 @@ export default function ListDebits() {
     link.href = url;
     link.download = "relatorio.pdf";
     link.click();
+  };
+
+  const saveDate = (id: string, newDate: string) => {
+    setCheckedItems((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, dateBaixa: newDate } : item
+      )
+    );
+
+    console.log(checkedItems)
   };
 
   return (
@@ -285,6 +338,14 @@ export default function ListDebits() {
                 >
                   Excluir
                 </th>
+                {checkedItems.length !== 0 && (
+                  <th
+                  scope="col"
+                  className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Data de baixa
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -294,8 +355,8 @@ export default function ListDebits() {
                     <input
                       type="checkbox"
                       className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                      checked={checkedItems.includes(unit.id)}
-                      onChange={() => handleCheckboxChange(unit.id)}
+                      checked={checkedItems.some((item) => item.id === unit.id)}
+                      onChange={() => handleCheckboxChange(unit.id, unit.baixaDate)}
                     />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -314,7 +375,7 @@ export default function ListDebits() {
                     {format(new Date(unit.expectedDate), 'dd/MM/yyyy', { locale: ptBR })}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <Link href={`/debitos/editar?id=${unit.id}`}>
+                    <Link href={`/receitas/editar?id=${unit.id}`}>
                       <Pencil className="h-4 w-4" />
                     </Link>
                   </td>
@@ -326,6 +387,14 @@ export default function ListDebits() {
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </td>
+                  {checkedItems.length !== 0 &&
+                    checkedItems.some((item) => item.id === unit.id) && ( // Verifica se o ID está nos checkedItems
+                      <EditData
+                        id={unit.id}
+                        value={unit.baixaDate}
+                        onSave={(id: string, newDate: string) => saveDate(unit.id, newDate)}
+                      />
+                  )}
                 </tr>
               ))}
             </tbody>

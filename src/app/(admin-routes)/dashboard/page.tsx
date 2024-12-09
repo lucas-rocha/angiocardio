@@ -3,6 +3,7 @@
 import { nextAuthOptions } from "@/app/api/auth/[...nextauth]/route";
 import BillsList from "@/components/billList";
 import ProfitDisplay from "@/components/ProfitDisplay";
+import ReceiverList from "@/components/ReceiverList";
 import UnitList from "@/components/UnitList";
 import transformData from "@/utils/dataToData";
 import { getServerSession } from "next-auth";
@@ -129,6 +130,14 @@ export default function Dashboard() {
   }, [])
 
   useEffect(() => {
+    const currentMonth = new Date().getMonth() + 1; // Janeiro é 0, Dezembro é 11
+    const currentYear = new Date().getFullYear().toString();
+
+    setSelectedMonth(currentMonth.toString());  // Define o mês atual
+    setSelectedYear(currentYear);  // Define o ano atual
+  }, []);
+
+  useEffect(() => {
     async function fetchDebits() {
       try {
         const response = await fetch('/api/debitos');
@@ -185,12 +194,36 @@ export default function Dashboard() {
 
     // Filtra os dados considerando tanto o filtro do select quanto a pesquisa
     const filteredDebits = debits.filter((debit) => {
-      const matchesUnit = (selectedUnit === 'Todos' && debit.IsBaixa == true) || (debit.unitId === selectedUnit && debit.IsBaixa == true);
+      const dateOfBaixa = new Date(debit.baixaDate);
+      const debitMonth = (dateOfBaixa.getMonth() + 1).toString()
+      const debitYear = dateOfBaixa.getFullYear().toString()
+
+      const matchesUnit = 
+  (selectedUnit === 'Todos' && 
+    debit.IsBaixa === true && 
+    (selectedMonth === 'Todos' || selectedMonth == debitMonth) && 
+    (selectedYear === 'Todos' || selectedYear == debitYear)) || 
+  (debit.unitId === selectedUnit && 
+    debit.IsBaixa === true && 
+    (selectedMonth === 'Todos' || selectedMonth == debitMonth) && 
+    (selectedYear === 'Todos' || selectedYear == debitYear));
       return matchesUnit
     });
 
     const filteredCredits = credits.filter((credit) => {
-      const matchesUnit = (selectedUnit === 'Todos' && credit.IsBaixa == true) || (credit.unitId === selectedUnit && credit.IsBaixa == true);
+      const dateOfBaixa = new Date(credit.baixaDate);
+      const debitMonth = (dateOfBaixa.getMonth() + 1).toString()
+      const debitYear = dateOfBaixa.getFullYear().toString()
+
+      const matchesUnit = 
+      (selectedUnit === 'Todos' && 
+        credit.IsBaixa === true && 
+        (selectedMonth === 'Todos' || selectedMonth == debitMonth) && 
+        (selectedYear === 'Todos' || selectedYear == debitYear)) || 
+      (credit.unitId === selectedUnit && 
+        credit.IsBaixa === true && 
+        (selectedMonth === 'Todos' || selectedMonth == debitMonth) && 
+        (selectedYear === 'Todos' || selectedYear == debitYear));
       return matchesUnit
     });
 
@@ -201,17 +234,65 @@ export default function Dashboard() {
   const handleSelectMonthChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const month = e.target.value;
     setSelectedMonth(month);
-  }
+  
+    // Filtra os débitos considerando o mês selecionado
+    const filteredDebits = debits.filter((debit) => {
+      const debitDate = new Date(debit.baixaDate);
+      const debitMonth = debitDate.getMonth() + 1;
+  
+      // Se o mês for "Todos", inclui todos os registros; caso contrário, filtra pelo mês
+      return month === 'Todos' || debitMonth === parseInt(month);
+    });
+  
+    // Filtra os créditos considerando o mês selecionado
+    const filteredCredits = credits.filter((credit) => {
+      const creditDate = new Date(credit.baixaDate);
+      const creditMonth = creditDate.getMonth() + 1;
+  
+      return month === 'Todos' || creditMonth === parseInt(month);
+    });
+  
+    // Atualiza os estados dos débitos e créditos filtrados
+    setFilteredDebits(filteredDebits);
+    setFilteredCredits(filteredCredits);
+  };
 
   const handleSelectYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const year = e.target.value;
     setSelectedYear(year);
-
+  
+    // Filtra os débitos considerando o ano selecionado
     const filteredDebits = debits.filter((debit) => {
-      const matchesUnit = (unitFilter === 'Todos' && debit.IsBaixa == true) || (debit.unitId === unitFilter && debit.IsBaixa == true);
-      return matchesUnit
+      const debitDate = new Date(debit.baixaDate);
+      const debitYear = debitDate.getFullYear();
+  
+      // Verifica unidade e ano
+      const matchesUnit =
+        (unitFilter === 'Todos' && debit.IsBaixa === true) ||
+        (debit.unitId === unitFilter && debit.IsBaixa === true);
+  
+      // Se o ano for "Todos", inclui todos os registros; caso contrário, verifica o ano
+      return matchesUnit && (year === 'Todos' || debitYear === parseInt(year));
     });
-  }
+  
+    // Filtra os créditos considerando o ano selecionado
+    const filteredCredits = credits.filter((credit) => {
+      const creditDate = new Date(credit.baixaDate);
+      const creditYear = creditDate.getFullYear();
+  
+      // Verifica unidade e ano
+      const matchesUnit =
+        (unitFilter === 'Todos' && credit.IsBaixa === true) ||
+        (credit.unitId === unitFilter && credit.IsBaixa === true);
+  
+      return matchesUnit && (year === 'Todos' || creditYear === parseInt(year));
+    });
+  
+    // Atualiza os estados dos débitos e créditos filtrados
+    setFilteredDebits(filteredDebits);
+    setFilteredCredits(filteredCredits);
+  };
+  
 
   const downloadPDF = async () => {
     // Transforme os dados necessários para o relatório
@@ -262,25 +343,26 @@ export default function Dashboard() {
         </div>
         <div>
           <label className="block text-sm mb-1">Mês</label>
-          <select className="w-full max-w-xs px-3 py-2 border rounded-md" onChange={handleSelectMonthChange}>
+          <select className="w-full max-w-xs px-3 py-2 border rounded-md" onChange={handleSelectMonthChange} value={selectedMonth}>
             <option value="Todos">Todos</option>
-            <option value="Janeiro">Janeiro</option>
-            <option value="Fevereiro">Fevereiro</option>
-            <option value="Março">Março</option>
-            <option value="Abril">Abril</option>
-            <option value="Junho">Junho</option>
-            <option value="Julho">Julho</option>
-            <option value="Agosto">Agosto</option>
-            <option value="Setembro">Setembro</option>
-            <option value="Outubro">Outubro</option>
-            <option value="Novembro">Novembro</option>
-            <option value="Dezembro">Dezembro</option>
+            <option value="1">Janeiro</option>
+            <option value="2">Fevereiro</option>
+            <option value="3">Março</option>
+            <option value="4">Abril</option>
+            <option value="5">Maio</option>
+            <option value="6">Junho</option>
+            <option value="7">Julho</option>
+            <option value="8">Agosto</option>
+            <option value="9">Setembro</option>
+            <option value="10">Outubro</option>
+            <option value="11">Novembro</option>
+            <option value="12">Dezembro</option>
             
         </select>
         </div>
         <div>
           <label className="block text-sm mb-1">Ano</label>
-            <select className="w-full max-w-xs px-3 py-2 border rounded-md" onChange={handleSelectYearChange}>
+            <select className="w-full max-w-xs px-3 py-2 border rounded-md" onChange={handleSelectYearChange} value={selectedYear}>
               <option value="Todos">Todos</option>
               {years.map(year => (
                 <option key={year} value={year}>{year}</option>
@@ -301,7 +383,8 @@ export default function Dashboard() {
       <ProfitDisplay debit={filteredDebits} credit={filteredCredits}/>
       <div className="flex gap-4">
         <BillsList data={filteredDebits.slice(0, 5)}/>
-        <UnitList data={units.slice(0, 5)}/>
+        <ReceiverList data={filteredCredits.slice(0, 5)}/>
+        {/* <UnitList data={units.slice(0, 5)}/> */}
       </div>
     </div>
   )

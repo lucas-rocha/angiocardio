@@ -12,6 +12,7 @@ type DebitEntry = {
   expectedDate: string;
   issueDate: string;
   IsBaixa: boolean;
+  baixaDate: string;
   unitId: string;
   unit: Unit;
 };
@@ -29,6 +30,7 @@ const transformData = (originalData: DebitEntry[]): string[][] => {
       const dueDate = new Date(item.dueDate).toLocaleDateString("pt-BR");
       const expectedDate = new Date(item.expectedDate).toLocaleDateString("pt-BR");
       const issueDate = new Date(item.issueDate).toLocaleDateString("pt-BR");
+      const baixaDate = new Date(item.baixaDate).toLocaleDateString("pt-BR");
 
       // Determina o status (Pago/Pendente) com base em "IsBaixa"
       const status = item.IsBaixa ? "Pago" : "Pendente";
@@ -50,7 +52,7 @@ const transformData = (originalData: DebitEntry[]): string[][] => {
           item.description,
           issueDate, 
           dueDate,
-          "-", 
+          baixaDate, 
           valueFormatted, 
           status
       ]);

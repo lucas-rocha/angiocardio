@@ -29,11 +29,42 @@ export async function POST(request: Request) {
   const rowHeight = 25;
   let pageCount = 1;
 
+  // Função para extrair e formatar o mês/ano corretamente
+const getBaixaMonthYear = () => {
+  const baixaDate = debit[2][3]; // Quarta coluna da terceira linha
+  console.log("Data de baixa original:", baixaDate); // Diagnóstico
+  const [day, month, year] = baixaDate.split("/"); // Divide a data no formato DD/MM/YYYY
+  const months = [
+    "jan", "fev", "mar", "abr", "mai", "jun", 
+    "jul", "ago", "set", "out", "nov", "dez"
+  ];
+  const monthName = months[parseInt(month, 10) - 1]; // Converte mês para índice
+  const shortYear = year.slice(-2); // Últimos dois dígitos do ano
+  console.log("Mês e ano extraídos:", `${monthName}/${shortYear}`); // Diagnóstico
+  return `${monthName}/${shortYear}`;
+};
+
+
   const addPage = () => {
     const page = pdfDoc.addPage([pageWidth, pageHeight]);
-    page.drawImage(logoImage, { x: 50, y: 520, width: logoDims.width, height: logoDims.height });
-    page.drawText("set/24", { x: 700, y: 550, size: 14, font: boldFont, color: rgb(0, 0, 0) });
-    drawPageNumber(page)
+    page.drawImage(logoImage, { 
+      x: 50, 
+      y: 520, 
+      width: logoDims.width, 
+      height: logoDims.height 
+    });
+
+    // Adiciona data dinâmica
+    const baixaMonthYear = getBaixaMonthYear();
+    page.drawText(baixaMonthYear, { 
+      x: 700, 
+      y: 550, 
+      size: 14, 
+      font: boldFont, 
+      color: rgb(0, 0, 0) 
+    });
+
+    drawPageNumber(page);
     return page;
   };
 

@@ -142,7 +142,7 @@ export default function ListUnit() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {units.map((unit) => (
+              {filteredUnits.map((unit) => (
                 <tr key={unit.id}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <input

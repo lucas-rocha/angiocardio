@@ -7,6 +7,7 @@ import { ptBR } from 'date-fns/locale'
 import Link from 'next/link'
 import transformData from '@/utils/dataToData'
 import EditData from '@/components/EditData'
+import Swal from 'sweetalert2'
 
 
 type DebitEntry = {
@@ -33,24 +34,45 @@ interface UpdateDate {
   date: string;
 }
 
+interface CheckedItem {
+  id: string;
+  dateBaixa: string;
+}
+
 export default function ListDebits() {
   const [searchQuery, setSearchQuery] = useState('')
   const [debits, setDebits] = useState<DebitEntry[]>([])
   const [filterDebit, setFilterDebit] = useState<DebitEntry[]>([])
-  const [checkedItems, setCheckedItems] = useState<string[]>([]);
+  const [checkedItems, setCheckedItems] = useState<CheckedItem[]>([]);
   const [checkAll, setCheckAll] = useState(false);
   const [units, setUnits] = useState<Unit[]>([])
   const [unitFilter, setUnitFilter] = useState('Todos');
   const [isEditing, setIsEditing] = useState(false);
   const [updateDateAndId, setUpdateDateAndId] = useState<UpdateDate[]>([])
 
+  const handleSuccess = () => {
+    Swal.fire({
+      title: 'Sucesso!',
+      text: 'Despeja atualizada com sucesso!',
+      icon: 'success',
+      confirmButtonText: 'OK',
+      timer: 3000
+    });
+  };
 
-  const handleCheckboxChange = (id: string) => {
-    setCheckedItems((prev: any) =>
-      prev.includes(id)
-        ? prev.filter((itemId: string) => itemId !== id)
-        : [...prev, id]
+  const handleCheckboxChange = (id: string, dateBaixa: string) => {
+    // setCheckedItems((prev: any) =>
+    // prev.includes(id)
+    // ? prev.filter((itemId: string) => itemId !== id)
+    // : [...prev, id]
+    // );
+    // console.log(checkedItems)
+    setCheckedItems((prev) =>
+    prev.some((item) => item.id === id)
+      ? prev.filter((item) => item.id !== id) // Remove o item pelo ID
+      : [...prev, { id, dateBaixa }] // Adiciona um novo item
     );
+    console.log(checkedItems)
   };
 
   useEffect(() => {
@@ -69,7 +91,7 @@ export default function ListDebits() {
     }
 
     fetchDebits();
-  }, [])
+  }, [checkedItems])
 
   const handleDelete = async (id: string) => {
     try {
@@ -92,7 +114,10 @@ export default function ListDebits() {
     if (checkAll) {
       setCheckedItems([]); // Desmarca tudo
     } else {
-      setCheckedItems(debits.map((unit) => unit.id)); // Marca tudo
+      setCheckedItems(debits.map((unit) => {
+        return { id: unit.id, dateBaixa: unit.baixaDate }
+      })); // Marca tudo
+      console.log(checkedItems)
     }
     setCheckAll(!checkAll);
   };
@@ -112,14 +137,24 @@ export default function ListDebits() {
     fetchUnits();
   }, [])
 
+  const normalizeDates = (items: CheckedItem[]) => {
+    return items.map((item) => ({
+      ...item,
+      dateBaixa: new Date(item.dateBaixa).toISOString(), // Converte para o formato ISO
+    }));
+  };
+  
+
   const updateDebits = async () => {
+    const normalizedItems = normalizeDates(checkedItems);
+
     try {
       const response = await fetch('/api/debitos', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ ids: checkedItems}),
+        body: JSON.stringify({ updates: normalizedItems }),
       });
   
       if (!response.ok) {
@@ -128,6 +163,8 @@ export default function ListDebits() {
   
       const result = await response.json();
       console.log('Resultado:', result);
+      handleSuccess()
+      setCheckedItems([])
     } catch (error) {
       
     }
@@ -150,14 +187,14 @@ export default function ListDebits() {
     const selectedUnit = e.target.value;
     setUnitFilter(selectedUnit);
 
-    // // Filtra os dados considerando tanto o filtro do select quanto a pesquisa
-    // const filtered = debits.filter((debit) => {
-    //   const matchesUnit = selectedUnit === 'Todos' || debit.unitId === selectedUnit;
-    //   const matchesSearch = debit.description.toLowerCase().includes(searchQuery.toLowerCase());
-    //   return matchesUnit && matchesSearch;
-    // });
+    // Filtra os dados considerando tanto o filtro do select quanto a pesquisa
+    const filtered = debits.filter((debit) => {
+      const matchesUnit = selectedUnit === 'Todos' || debit.unitId === selectedUnit;
+      const matchesSearch = debit.description.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesUnit && matchesSearch;
+    });
 
-    // setFilterDebit(filtered);
+    setFilterDebit(filtered);
   } 
 
   const downloadPDF = async () => {
@@ -184,24 +221,33 @@ export default function ListDebits() {
   }
 
 
-  const saveDate = (id: string, date: string) => {
-    setUpdateDateAndId((prev) => {
-      // Verifica se o ID já existe no array
-      const exists = prev.some((item) => item.id === id);
+  // const saveDate = (id: string, date: string) => {
+  //   setUpdateDateAndId((prev) => {
+  //     // Verifica se o ID já existe no array
+  //     const exists = prev.some((item) => item.id === id);
   
-      if (exists) {
-        // Substitui o objeto com o mesmo ID
-        return prev.map((item) =>
-          item.id === id ? { ...item, date } : item
-        );
-      } else {
-        // Adiciona um novo objeto ao array
-        return [...prev, { id, date }];
-      }
-    });
+  //     if (exists) {
+  //       // Substitui o objeto com o mesmo ID
+  //       return prev.map((item) =>
+  //         item.id === id ? { ...item, date } : item
+  //       );
+  //     } else {
+  //       // Adiciona um novo objeto ao array
+  //       return [...prev, { id, date }];
+  //     }
+  //   });
 
-    console.log(updateDateAndId)
-  }
+  //   console.log(updateDateAndId)
+  // }
+  const saveDate = (id: string, newDate: string) => {
+    setCheckedItems((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, dateBaixa: newDate } : item
+      )
+    );
+
+    console.log(checkedItems)
+  };
 
   return (
     <div className="p-6 flex-1">
@@ -344,8 +390,8 @@ export default function ListDebits() {
                     <input
                       type="checkbox"
                       className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                      checked={checkedItems.includes(unit.id)}
-                      onChange={() => handleCheckboxChange(unit.id)}
+                      checked={checkedItems.some((item) => item.id === unit.id)}
+                      onChange={() => handleCheckboxChange(unit.id, unit.baixaDate)}
                     />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -376,12 +422,13 @@ export default function ListDebits() {
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </td>
-                  {checkedItems.length !== 0 && (
-                    <EditData 
-                      id={unit.id} 
-                      value={unit.baixaDate} 
-                      onSave={(id: string, newDate: string) => saveDate(unit.id, newDate)}
-                    />
+                  {checkedItems.length !== 0 &&
+                    checkedItems.some((item) => item.id === unit.id) && ( // Verifica se o ID está nos checkedItems
+                      <EditData
+                        id={unit.id}
+                        value={unit.baixaDate}
+                        onSave={(id: string, newDate: string) => saveDate(unit.id, newDate)}
+                      />
                   )}
                 </tr>
               ))}
