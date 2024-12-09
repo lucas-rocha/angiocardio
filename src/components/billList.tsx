@@ -34,10 +34,10 @@ export default function BillsList({data}: DebitListProps) {
           <div key={debit.id} className="py-3 flex justify-between items-center">
             <span className="text-sm text-gray-600">{debit.description}</span>
             <span className="text-sm text-gray-700">
-              {new Intl.NumberFormat('pt-BR', {
-                style: 'currency',
-                currency: 'BRL'
-              }).format(debit.valueToPay)}  
+            {new Intl.NumberFormat('pt-BR', {
+  style: 'currency',
+  currency: 'BRL',
+}).format(parseFloat(debit.valueToPay))}
             </span>
           </div>
         ))}

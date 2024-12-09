@@ -250,7 +250,7 @@ export default function DebitosRegistro() {
                 >
                   Data de Vencimento
                 </th>
-                <th
+                {/* <th
                   scope="col"
                   className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
@@ -261,7 +261,7 @@ export default function DebitosRegistro() {
                   className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
                   Excluir
-                </th>
+                </th> */}
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -288,7 +288,7 @@ export default function DebitosRegistro() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {format(new Date(debit.dueDate), 'dd/MM/yyyy', { locale: ptBR })}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  {/* <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button className="text-blue-600 hover:text-blue-900">
                       <Pencil className="h-4 w-4" />
                     </button>
@@ -299,7 +299,7 @@ export default function DebitosRegistro() {
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
-                  </td>
+                  </td> */}
                 </tr>
               ))}
             </tbody>

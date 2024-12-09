@@ -125,12 +125,12 @@ export default function RegisterUnit() {
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Unidade
                 </th>
-                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                {/* <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Editar
                 </th>
                 <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Excluir
-                </th>
+                </th> */}
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -143,7 +143,7 @@ export default function RegisterUnit() {
                     />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{unit.Description}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  {/* <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button className="text-blue-600 hover:text-blue-900">
                       <Pencil className="h-4 w-4" />
                     </button>
@@ -152,7 +152,7 @@ export default function RegisterUnit() {
                     <button className="text-red-600 hover:text-red-900">
                       <Trash2 className="h-4 w-4" />
                     </button>
-                  </td>
+                  </td> */}
                 </tr>
               ))}
             </tbody>

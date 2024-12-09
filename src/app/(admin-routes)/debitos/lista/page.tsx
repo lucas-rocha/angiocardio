@@ -262,7 +262,7 @@ export default function ListDebits() {
             <input
               type="text"
               id="unit-search"
-              placeholder="Digite aqui a unidade"
+              placeholder="Procure pela despesa"
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
               className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"

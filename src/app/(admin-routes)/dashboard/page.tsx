@@ -380,7 +380,7 @@ export default function Dashboard() {
           </button>
         </div>
       </div>
-      <ProfitDisplay debit={filteredDebits} credit={filteredCredits}/>
+      <ProfitDisplay debit={filteredDebits} credit={filteredCredits} selectMonth={selectedMonth} selectYear={selectedYear}/>
       <div className="flex gap-4">
         <BillsList data={filteredDebits.slice(0, 5)}/>
         <ReceiverList data={filteredCredits.slice(0, 5)}/>

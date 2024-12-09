@@ -13,9 +13,11 @@ type DebitEntry = {
 type ProfitDisplayProps = {
   debit: DebitEntry[];
   credit: DebitEntry[];
+  selectMonth: string;
+  selectYear: string;
 };
 
-export default function ProfitDisplay({ debit, credit }: ProfitDisplayProps) {
+export default function ProfitDisplay({ debit, credit, selectMonth, selectYear }: ProfitDisplayProps) {
   const totalCredits = credit.reduce((sum, entry) => sum + parseFloat(entry.valueToPay), 0);
 
   const totalDebits = debit.reduce((sum, entry) => sum + parseFloat(entry.valueToPay), 0);
@@ -34,7 +36,9 @@ export default function ProfitDisplay({ debit, credit }: ProfitDisplayProps) {
             R$ {profit.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}  
           </div>
         </div>
-        <div className="text-white text-sm">Mês atual</div>
+        <div className="text-white text-sm">
+          {selectMonth}/{selectYear}
+          </div>
       </div>
     </div>
   )
