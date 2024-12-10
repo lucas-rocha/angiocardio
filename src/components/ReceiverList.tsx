@@ -1,17 +1,23 @@
 import { Receipt } from "lucide-react";
 import Link from "next/link";
-import { format } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
 
 type DebitEntry = {
+  id: string;
+  description: string;
+  valueToPay: string;
+  dueDate: string;
+  expectedDate: string;
+  issueDate: string;
+  IsBaixa: boolean;
+  baixaDate: string;
+  unitId: string;
+  unit: Unit;
+}
+
+interface Unit {
   id: string
-  description: string
-  value: number
-  dueDate: string
-  issueDate: string
-  valueToPay: string
-  unitId: string
-  expectedDate: string
+  Description: string
+  CNPJ: string
 }
 
 type DebitListProps = {

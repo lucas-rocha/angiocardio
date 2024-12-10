@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { CalendarIcon, Clipboard, Pencil, PlusCircle, Trash2 } from 'lucide-react'
+import { CalendarIcon, Clipboard, PlusCircle } from 'lucide-react'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 

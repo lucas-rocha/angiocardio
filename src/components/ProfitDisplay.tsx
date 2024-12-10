@@ -1,13 +1,20 @@
 type DebitEntry = {
+  id: string;
+  description: string;
+  valueToPay: string;
+  dueDate: string;
+  expectedDate: string;
+  issueDate: string;
+  IsBaixa: boolean;
+  baixaDate: string;
+  unitId: string;
+  unit: Unit;
+}
+
+interface Unit {
   id: string
-  description: string
-  value: number
-  dueDate: string
-  issueDate: string
-  valueToPay: string
-  unitId: string
-  expectedDate: string
-  IsBaixa: boolean
+  Description: string
+  CNPJ: string
 }
 
 type ProfitDisplayProps = {

@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Pencil, Trash2 } from 'lucide-react'
 
 interface Unit {
   id: number
@@ -47,10 +46,10 @@ export default function RegisterUnit() {
         setNewUnit(''); // Limpa o campo após o envio
         setCnpj('');
       } else {
-        const errorData = await response.json();
+        // const errorData = await response.json();
       }
     } catch (error) {
-
+      console.log(error)
     }
   }
 

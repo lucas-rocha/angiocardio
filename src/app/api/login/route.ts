@@ -1,7 +1,3 @@
-export async function GET(request: Request) {
-  return Response.json({ name: 'oko' })
-}
-
 export async function POST(request: Request) {
   const { email, password } = await request.json()
 

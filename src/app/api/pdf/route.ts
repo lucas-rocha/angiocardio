@@ -125,7 +125,7 @@ export async function POST(request: Request) {
 
   const drawTable = () => {
     // Desenha a tabela
-    data.forEach((row, index) => {
+    data.forEach((row: any, index: any) => {
       const [desc, emission, due, paymentDate, value, status] = row; // Novo valor aqui
   
       const isBold = ["DESCRIÇÃO", "DATA DE EMISSÃO", "VENCIMENTO", "DATA DE QUITAÇÃO", "VALOR", "STATUS", "TOTAL"].includes(

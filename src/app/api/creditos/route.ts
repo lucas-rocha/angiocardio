@@ -157,7 +157,7 @@ export async function PUT(request: Request) {
 
     const primaryexpectedDate = new Date(data.expectedDate)
     const primarydueDate = new Date(data.dueDate)
-    const primaryissueDate = new Date(data.issueDate)
+    // const primaryissueDate = new Date(data.issueDate)
 
     // Atualiza a unidade no banco de dados
     const updatedUnit = await prisma.credits.update({

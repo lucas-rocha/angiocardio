@@ -80,7 +80,7 @@ const getBaixaMonthYear = () => {
     pageCount++; // Incrementa o contador
   };
 
-  const marginBetweenSections = 30; // Margem entre seções
+  // const marginBetweenSections = 30; // Margem entre seções
 
   let totalDebitos = 0;
 let totalCreditos = 0;
@@ -137,7 +137,7 @@ const drawTableSection = (data: string[][], title: string, isDebit: boolean) => 
 
     // Desenha as linhas verticais entre as colunas (incluindo entre "VALOR" e "STATUS")
     let currentX = tableStartX;
-    colWidths.forEach((colWidth, colIndex) => {
+    colWidths.forEach((colWidth) => {
       // Desenha as bordas verticais entre as colunas
       page.drawLine({
         start: { x: currentX, y: y },

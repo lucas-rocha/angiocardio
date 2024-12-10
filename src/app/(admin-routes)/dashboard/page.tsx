@@ -1,12 +1,9 @@
 "use client"
 
-import { nextAuthOptions } from "@/app/api/auth/[...nextauth]/route";
 import BillsList from "@/components/billList";
 import ProfitDisplay from "@/components/ProfitDisplay";
 import ReceiverList from "@/components/ReceiverList";
-import UnitList from "@/components/UnitList";
 import transformData from "@/utils/dataToData";
-import { getServerSession } from "next-auth";
 import { useEffect, useState } from "react";
 
 type DebitEntry = {
