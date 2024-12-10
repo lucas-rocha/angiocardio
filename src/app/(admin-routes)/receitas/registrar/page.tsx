@@ -59,7 +59,7 @@ export default function CreditosRegistro() {
   useEffect(() => {
     async function fetchDebits() {
       try {
-        const response = await fetch('/api/debitos');
+        const response = await fetch('/api/creditos');
         const data = await response.json();
         console.log(data)
         
@@ -200,23 +200,16 @@ export default function CreditosRegistro() {
       <div className="mt-6">
         <h2 className="text-sm font-medium text-gray-700 mb-4">Lançamentos atuais</h2>
         <div className="border rounded-lg overflow-hidden">
-        {units.length === 0 ? (
+        {debits.length === 0 ? (
           <div className="flex justify-center items-center py-10 text-center">
             <div>
               <Clipboard className="mx-auto h-12 w-12 text-gray-400" />
               <p className="text-lg text-gray-600 mt-4">
-                Nenhuma unidade encontrada.
+                Nenhuma receita encontrada.
               </p>
               <p className="text-sm text-gray-500 mt-2">
-                Parece que você ainda não tem unidades cadastradas. Que tal adicionar uma agora?
+                Parece que você ainda não tem receitas cadastradas. Que tal adicionar uma agora?
               </p>
-              <button
-                onClick={() => window.location.href = '/unidades/registrar  '} // Exemplo de redirecionamento para a página de adicionar
-                className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-              >
-                <PlusCircle className="inline h-5 w-5 mr-2" />
-                Adicionar Unidade
-              </button>
             </div>
           </div>
         ) : (

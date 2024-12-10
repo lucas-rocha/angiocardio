@@ -187,7 +187,7 @@ export default function EditDebit() {
               </div>
             </div>
             <div>
-              <label className="block text-sm mb-1">Data prevista de baixa</label>
+              <label className="block text-sm mb-1">Data prevista de pagamento</label>
               <div className="relative">
                 <input
                   type="date"

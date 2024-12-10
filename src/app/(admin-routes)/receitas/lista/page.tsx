@@ -45,7 +45,7 @@ export default function ListDebits() {
   const handleSuccess = () => {
     Swal.fire({
       title: 'Sucesso!',
-      text: 'Receita atualizada com sucesso!',
+      text: 'Receitas(s) Recebidas(s) com sucesso!',
       icon: 'success',
       confirmButtonText: 'OK',
       timer: 3000
@@ -263,7 +263,7 @@ export default function ListDebits() {
             <span>EXPORTAR</span>
           </button>
           <button className="px-4 py-2 bg-teal-700 text-white rounded-[5px] hover:bg-teal-800" onClick={updateCredits}>
-            Dar baixa
+            Receber
           </button>
         </div>
       )}
@@ -276,17 +276,17 @@ export default function ListDebits() {
             <div>
               <Clipboard className="mx-auto h-12 w-12 text-gray-400" />
               <p className="text-lg text-gray-600 mt-4">
-                Nenhuma unidade encontrada.
+                Nenhuma receita encontrada.
               </p>
               <p className="text-sm text-gray-500 mt-2">
-                Parece que você ainda não tem unidades cadastradas. Que tal adicionar uma agora?
+                Parece que você ainda não tem receitas cadastradas. Que tal adicionar uma agora?
               </p>
               <button
-                onClick={() => window.location.href = '/unidades/registrar'} // Exemplo de redirecionamento para a página de adicionar
+                onClick={() => window.location.href = '/receitas/registrar'} // Exemplo de redirecionamento para a página de adicionar
                 className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
                 <PlusCircle className="inline h-5 w-5 mr-2" />
-                Adicionar Unidade
+                Adicionar Receita
               </button>
             </div>
           </div>
@@ -324,7 +324,7 @@ export default function ListDebits() {
                   scope="col"
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
-                  Data prevista de baixa
+                  data prevista de recebimento
                 </th>
                 <th
                   scope="col"
@@ -343,7 +343,7 @@ export default function ListDebits() {
                   scope="col"
                   className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
                   >
-                    Data de baixa
+                    Data de recebimento
                   </th>
                 )}
               </tr>

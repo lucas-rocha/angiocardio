@@ -1,4 +1,4 @@
-import { format, parseISO } from "date-fns"
+import { addHours, format, parseISO } from "date-fns"
 import { ptBR } from 'date-fns/locale'
 import { useState } from "react"
 
@@ -11,7 +11,9 @@ type EditDataProps = {
 export default function EditData({ id, value, onSave }: EditDataProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [inputValue, setInputValue] = useState(
-    value ? format(parseISO(value), "yyyy-MM-dd", { locale: ptBR }) : format(new Date(), "yyyy-MM-dd", { locale: ptBR })
+    value
+    ? format(addHours(parseISO(value), 3), "yyyy-MM-dd", { locale: ptBR }) // Ajusta para Horário de Brasília
+    : format(new Date(), "yyyy-MM-dd", { locale: ptBR })
   );
 
   const handleSave = () => {
@@ -20,6 +22,8 @@ export default function EditData({ id, value, onSave }: EditDataProps) {
       onSave(id, inputValue); // Envia o novo valor para o pai
     }
   };
+
+  console.log(value)
 
   return (
     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium" onClick={() => !isEditing && setIsEditing(true)}>
