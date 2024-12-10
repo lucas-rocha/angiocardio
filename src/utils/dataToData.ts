@@ -28,7 +28,7 @@ const transformData = (originalData: DebitEntry[]): string[][] => {
 
       // Formata as datas
       const dueDate = new Date(item.dueDate).toLocaleDateString("pt-BR");
-      const expectedDate = new Date(item.expectedDate).toLocaleDateString("pt-BR");
+      // const expectedDate = new Date(item.expectedDate).toLocaleDateString("pt-BR");
       const issueDate = new Date(item.issueDate).toLocaleDateString("pt-BR");
       const baixaDate = new Date(item.baixaDate).toLocaleDateString("pt-BR");
 
@@ -40,7 +40,7 @@ const transformData = (originalData: DebitEntry[]): string[][] => {
       totalValue += valueToPay;  // Acumula o valor para o total
       const valueFormatted = `${valueToPay.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
 
-      const arrayToBold = []
+      // const arrayToBold = []
       
       // Adiciona o nome da unidade apenas se for a primeira vez
       if (index === 0 || item.unit.Description !== originalData[index - 1].unit.Description) {
