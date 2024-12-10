@@ -16,8 +16,10 @@ COPY . .
 # Gere os tipos do Prisma
 RUN npx prisma generate
 
+RUN npm run build
+
 # Exponha a porta 3000
 EXPOSE 3000
 
 # Comando para rodar a aplicação
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "start"]
