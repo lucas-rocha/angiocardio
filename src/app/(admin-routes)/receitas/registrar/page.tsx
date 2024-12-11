@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { CalendarIcon, Clipboard, PlusCircle } from 'lucide-react'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
+import CurrencyInput from '@/components/CurrencyInput'
 
 type DebitEntry = {
   id: string;
@@ -27,7 +28,7 @@ interface Unit {
 export default function CreditosRegistro() {
   const [debits, setDebits] = useState<DebitEntry[]>([])
   const [description, setDescription] = useState('')
-  const [valueToPay, setValueToPay] = useState('')
+  const [valueToPay, setValueToPay] = useState(0)
   const [selectedUnit, setSelectedUnit] = useState('')
   const [issueDate, setIssueDate] = useState('')
   const [expectedDate, SetExpectedDate] = useState('')
@@ -133,13 +134,7 @@ export default function CreditosRegistro() {
             <div>
               <label className="block text-sm mb-1">Valor</label>
               <div className="relative">
-                <span className="absolute left-3 top-2">R$</span>
-                <input
-                  type="text"
-                  className="w-full pl-8 pr-3 py-2 border rounded-md"
-                  value={valueToPay}
-                  onChange={(e) => setValueToPay(e.target.value)}
-                />
+                <CurrencyInput value={valueToPay} onChange={(value) => setValueToPay(value)} />
               </div>
             </div>
           </div>

@@ -70,7 +70,7 @@ model Unit {
 model Debits {
   id String @id @default(cuid())
   description String
-  valueToPay String
+  valueToPay Decimal @db.Decimal(10, 2)
   dueDate DateTime
   expectedDate DateTime
   issueDate DateTime
@@ -84,7 +84,7 @@ model Debits {
 model Credits {
   id String @id @default(cuid())
   description String
-  valueToPay String
+  valueToPay Decimal @db.Decimal(10, 2)
   dueDate DateTime
   expectedDate DateTime
   issueDate DateTime
