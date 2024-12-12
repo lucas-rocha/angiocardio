@@ -7,6 +7,7 @@ import { SyntheticEvent, useState } from "react";
 export default function Home() {
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
+  const [isLoginError, setIsLoginError] = useState(false)
 
   const router = useRouter()
 
@@ -19,7 +20,10 @@ export default function Home() {
       redirect: false
     })
 
+    setIsLoginError(false)
+
     if (result?.error) {
+      setIsLoginError(true)
       return
     }
 
@@ -86,6 +90,11 @@ export default function Home() {
                 Entrar
               </button>
             </div>
+            {isLoginError && (
+              <div>
+                <p>Email ou senha incorreta</p>
+              </div>
+            )}
           </form>
         </div>
       </div>

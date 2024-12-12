@@ -113,6 +113,10 @@ export default function Dashboard() {
   const [selectedMonth, setSelectedMonth] = useState<string>('Todos')
   const [selectedYear, setSelectedYear] = useState<string>('Todos')
   const [unitFilter, setUnitFilter] = useState('Todos');
+  const [isPago, isSetPago] = useState(true)
+  const [status, setStatus] = useState('Todos')
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   useEffect(() => {
     const date = new Date()
@@ -289,6 +293,65 @@ export default function Dashboard() {
     setFilteredDebits(filteredDebits);
     setFilteredCredits(filteredCredits);
   };
+
+
+  const handleSelectStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    // const selectedStatus = e.target.value;
+    // setStatus(selectedStatus);
+  
+    // const filteredDebits = debits.filter((debit) => {
+    //   const matchesStatus =
+    //     selectedStatus === 'Todos' || 
+    //     (selectedStatus === 'pago' && debit.IsBaixa === true) || 
+    //     (selectedStatus === 'pendente' && debit.IsBaixa === false);
+  
+    //   return matchesStatus;
+    // });
+
+    // const filteredCredits = credits.filter((credit) => {
+    //   const matchesStatus =
+    //     selectedStatus === 'Todos' || 
+    //     (selectedStatus === 'pago' && credit.IsBaixa === true) || 
+    //     (selectedStatus === 'pendente' && credit.IsBaixa === false);
+  
+    //   return matchesStatus;
+    // });
+  
+    // setFilteredDebits(filteredDebits)
+    // setFilteredCredits(filteredCredits)
+  };
+  
+  const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setStartDate(e.target.value);
+    filterData(e.target.value, endDate);
+  };
+  
+  const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEndDate(e.target.value);
+    filterData(startDate, e.target.value);
+    console.log(endDate)
+  };
+  
+  const filterData = (start: string, end: string) => {
+    const filteredDebits = debits.filter((debit) => {
+      const debitDate = new Date(debit.baixaDate).toISOString().split("T")[0];
+      return (
+        (!start || debitDate >= start) &&
+        (!end || debitDate <= end)
+      );
+    });
+  
+    const filteredCredits = credits.filter((credit) => {
+      const creditDate = new Date(credit.baixaDate).toISOString().split("T")[0];
+      return (
+        (!start || creditDate >= start) &&
+        (!end || creditDate <= end)
+      );
+    });
+  
+    setFilteredDebits(filteredDebits);
+    setFilteredCredits(filteredCredits);
+  };
   
 
   const downloadPDF = async () => {
@@ -339,6 +402,25 @@ export default function Dashboard() {
           </select>
         </div>
         <div>
+  <label className="block text-sm mb-1">Data Início</label>
+  <input
+    type="date"
+    className="w-full max-w-xs px-3 py-2 border rounded-md"
+    onChange={handleStartDateChange}
+    value={startDate}
+  />
+</div>
+<div>
+  <label className="block text-sm mb-1">Data Fim</label>
+  <input
+    type="date"
+    className="w-full max-w-xs px-3 py-2 border rounded-md"
+    onChange={handleEndDateChange}
+    value={endDate}
+  />
+</div>
+
+        {/* <div>
           <label className="block text-sm mb-1">Mês</label>
           <select className="w-full max-w-xs px-3 py-2 border rounded-md" onChange={handleSelectMonthChange} value={selectedMonth}>
             <option value="Todos">Todos</option>
@@ -354,7 +436,6 @@ export default function Dashboard() {
             <option value="10">Outubro</option>
             <option value="11">Novembro</option>
             <option value="12">Dezembro</option>
-            
         </select>
         </div>
         <div>
@@ -364,6 +445,14 @@ export default function Dashboard() {
               {years.map(year => (
                 <option key={year} value={year}>{year}</option>
               ))}
+            </select>
+        </div> */}
+        <div>
+          <label className="block text-sm mb-1">Status</label>
+          <select className="w-full max-w-xs px-3 py-2 border rounded-md" onChange={handleSelectStatusChange} value={status}>
+              <option value="Todos">Todos</option>
+              <option value="pago">Pago</option>
+              <option value="pendente">Pendente</option>
           </select>
         </div>
         <div>
