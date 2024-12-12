@@ -6,22 +6,35 @@ import { Save, ArrowLeft, CalendarIcon } from 'lucide-react'
 import Swal from 'sweetalert2';
 import { format, parse } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
+import EditBaixa from '@/components/EditBaixa';
 
 type DebitEntry = {
-  id: string
-  description: string
-  value: number
-  dueDate: string
-  issueDate: string
-  valueToPay: string
-  unitId: string
-  expectedDate: string
+  id: string;
+  description: string;
+  valueToPay: string;
+  dueDate: string;
+  expectedDate: string;
+  issueDate: string;
+  IsBaixa: boolean;
+  baixaDate: string;
+  unitId: string;
+  unit: Unit;
 }
 
 interface Unit {
-  id: number
+  id: string
   Description: string
-  CNP: string
+  CNPJ: string
+}
+
+interface DebitoUpdate {
+  description: string;
+  expectedDate: string;
+  issueDate: string;
+  dueDate: string;
+  valueToPay: string;
+  isBaixa: boolean;
+  baixaDate?: string | null; // Adicionando baixaDate como opcional
 }
 
 export default function EditDebit() {
@@ -35,6 +48,8 @@ export default function EditDebit() {
   const [issueDate, setIssueDate] = useState('')
   const [expectedDate, SetExpectedDate] = useState<string>('')
   const [dueDate, setDueDate] = useState('')
+  const [isPago, setIsPago] = useState(false)
+  const [newDateBaixa, setNewDateBaixa] = useState('')
 
   const handleSuccess = () => {
     Swal.fire({
@@ -74,6 +89,8 @@ export default function EditDebit() {
           const parsedDueDate = parse(parseDueDate, 'dd/MM/yyyy', new Date())
           const formattedDueDate = format(parsedDueDate, 'yyyy-MM-dd')
           setDueDate(formattedDueDate)
+
+          setIsPago(data.IsBaixa)
         } else {
           console.error('Erro ao buscar unidade.')
         }
@@ -87,16 +104,27 @@ export default function EditDebit() {
 
   const handleSave = async () => {
     try {
+      const isTrue = newDateBaixa ? true : false
+
+      const body: DebitoUpdate = {
+        description: description,
+        expectedDate: expectedDate,
+        issueDate: issueDate,
+        dueDate: dueDate,
+        valueToPay: valueToPay,
+        isBaixa: isTrue,
+      };
+
+      if (newDateBaixa) {
+        body.baixaDate = newDateBaixa;
+      } else {
+        body.baixaDate = null; // Ou remova a propriedade, dependendo da necessidade
+      }
+
       const response = await fetch(`/api/creditos?id=${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          description: description,
-          expectedDate: expectedDate,
-          issueDate: issueDate,
-          dueDate: dueDate,
-          valueToPay: valueToPay
-         }),
+        body: JSON.stringify(body),
       })
 
       if (response.ok) {
@@ -111,8 +139,17 @@ export default function EditDebit() {
   }
 
   if (!debit) {
-    return <p>Carregando unidade...</p>
+    return <p>Carregando receitas...</p>
   }
+
+  const handleStatusChange = (newStatus: boolean) => {
+    setIsPago(newStatus); // Atualiza o status para pago ou pendente
+    console.log(newStatus)
+  };
+  
+  const handleNewDateChange = (newDate: string) => {
+    setNewDateBaixa(newDate)// Salve ou trate a nova data aqui
+  };
 
   return (
     <div className="p-6 flex-1">
@@ -197,6 +234,13 @@ export default function EditDebit() {
                 />
                 <CalendarIcon className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
               </div>
+            </div>
+            <div>
+              <EditBaixa
+                isPago={isPago}
+                onStatusChange={handleStatusChange}
+                onDateChange={handleNewDateChange}
+              />
             </div>
           </div>
         </div>

@@ -156,8 +156,8 @@ export async function PUT(request: Request) {
 
     const primaryexpectedDate = new Date(data.expectedDate)
     const primarydueDate = new Date(data.dueDate)
-    const primaryBaixaDate = new Date(data.baixaDate)
-    // const primaryissueDate = new Date(data.issueDate)
+    const primaryissueDate = new Date(data.issueDate)
+    // const primaryBaixaDate = new Date(data.baixaDate)
 
     const baixaDate = data.baixaDate ? new Date(data.baixaDate) : null;
 
@@ -171,7 +171,7 @@ export async function PUT(request: Request) {
         valueToPay: data.valueToPay,
         expectedDate: new Date(primaryexpectedDate.getTime() + primaryexpectedDate.getTimezoneOffset() * 60000),
         dueDate: new Date(primarydueDate.getTime() + primarydueDate.getTimezoneOffset() * 60000),
-        issueDate: new Date(primarydueDate.getTime() + primarydueDate.getTimezoneOffset() * 60000),
+        issueDate: new Date(primaryissueDate.getTime() + primaryissueDate.getTimezoneOffset() * 60000),
         baixaDate: baixaDate,
         IsBaixa: data.isBaixa
       },
