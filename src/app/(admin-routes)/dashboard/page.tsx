@@ -104,6 +104,14 @@ const originalData = [
 ];
 
 export default function Dashboard() {
+  const today = new Date();
+  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
+    .toISOString()
+    .split("T")[0]; // Primeiro dia do mês atual
+  const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+    .toISOString()
+    .split("T")[0]; // Último dia do mês atual
+
   const [units, setUnits] = useState<Unit[]>([])
   const [debits, setDebits] = useState<DebitEntry[]>([])
   const [filteredDebits, setFilteredDebits] = useState<DebitEntry[]>([])
@@ -114,9 +122,10 @@ export default function Dashboard() {
   const [selectedYear, setSelectedYear] = useState<string>('Todos')
   const [unitFilter, setUnitFilter] = useState('Todos');
   const [isPago, isSetPago] = useState(true)
-  const [status, setStatus] = useState('Todos')
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState('Todos')
+  const [startDate, setStartDate] = useState(firstDayOfMonth);
+  const [endDate, setEndDate] = useState(lastDayOfMonth);
+
 
   useEffect(() => {
     const date = new Date()
@@ -131,11 +140,7 @@ export default function Dashboard() {
   }, [])
 
   useEffect(() => {
-    const currentMonth = new Date().getMonth() + 1; // Janeiro é 0, Dezembro é 11
-    const currentYear = new Date().getFullYear().toString();
-
-    setSelectedMonth(currentMonth.toString());  // Define o mês atual
-    setSelectedYear(currentYear);  // Define o ano atual
+    filterData(firstDayOfMonth, lastDayOfMonth);
   }, []);
 
   useEffect(() => {
@@ -191,136 +196,54 @@ export default function Dashboard() {
 
   const handleSelectChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedUnit = e.target.value;
-    setUnitFilter(selectedUnit)
-
-    // Filtra os dados considerando tanto o filtro do select quanto a pesquisa
+    setUnitFilter(selectedUnit);
+  
+    // Filtra os dados considerando tanto o filtro do select quanto a pesquisa por data
     const filteredDebits = debits.filter((debit) => {
       const dateOfBaixa = new Date(debit.baixaDate);
-      const debitMonth = (dateOfBaixa.getMonth() + 1).toString()
-      const debitYear = dateOfBaixa.getFullYear().toString()
-
-      const matchesUnit = 
-  (selectedUnit === 'Todos' && 
-    debit.IsBaixa === true && 
-    (selectedMonth === 'Todos' || selectedMonth == debitMonth) && 
-    (selectedYear === 'Todos' || selectedYear == debitYear)) || 
-  (debit.unitId === selectedUnit && 
-    debit.IsBaixa === true && 
-    (selectedMonth === 'Todos' || selectedMonth == debitMonth) && 
-    (selectedYear === 'Todos' || selectedYear == debitYear));
-      return matchesUnit
+      const debitDate = dateOfBaixa.toISOString().split("T")[0];
+    
+      // Verifica se a unidade corresponde
+      const matchesUnit =
+        (selectedUnit === "Todos" && debit.IsBaixa === true) ||
+        (debit.unitId === selectedUnit && debit.IsBaixa === true);
+    
+      // Verifica se está dentro do intervalo de datas
+      const matchesDateRange =
+        (!startDate || debitDate >= startDate) &&
+        (!endDate || debitDate <= endDate);
+    
+      // Verifica se o status corresponde
+      const matchesStatus =
+        selectedStatus === "Todos" || // Todos: inclui tanto true quanto false
+        (selectedStatus === "Pago" && debit.IsBaixa === true) || // Pago: apenas true
+        (selectedStatus === "Pendente" && debit.IsBaixa === false); // Pendente: apenas false
+    
+      return matchesUnit && matchesDateRange && matchesStatus;
     });
-
+    
     const filteredCredits = credits.filter((credit) => {
       const dateOfBaixa = new Date(credit.baixaDate);
-      const debitMonth = (dateOfBaixa.getMonth() + 1).toString()
-      const debitYear = dateOfBaixa.getFullYear().toString()
-
-      const matchesUnit = 
-      (selectedUnit === 'Todos' && 
-        credit.IsBaixa === true && 
-        (selectedMonth === 'Todos' || selectedMonth == debitMonth) && 
-        (selectedYear === 'Todos' || selectedYear == debitYear)) || 
-      (credit.unitId === selectedUnit && 
-        credit.IsBaixa === true && 
-        (selectedMonth === 'Todos' || selectedMonth == debitMonth) && 
-        (selectedYear === 'Todos' || selectedYear == debitYear));
-      return matchesUnit
-    });
-
-    setFilteredDebits(filteredDebits);
-    setFilteredCredits(filteredCredits)
-  } 
-
-  const handleSelectMonthChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const month = e.target.value;
-    setSelectedMonth(month);
+      const creditDate = dateOfBaixa.toISOString().split("T")[0];
   
-    // Filtra os débitos considerando o mês selecionado
-    const filteredDebits = debits.filter((debit) => {
-      const debitDate = new Date(debit.baixaDate);
-      const debitMonth = debitDate.getMonth() + 1;
+      const matchesUnit = (selectedUnit === "Todos" && credit.IsBaixa === true) || (credit.unitId === selectedUnit && credit.IsBaixa === true)
   
-      // Se o mês for "Todos", inclui todos os registros; caso contrário, filtra pelo mês
-      return month === 'Todos' || debitMonth === parseInt(month);
+      const matchesDateRange =
+        (!startDate || creditDate >= startDate) &&
+        (!endDate || creditDate <= endDate);
+  
+        const matchesStatus =
+        selectedStatus === "Todos" || // Todos: inclui tanto true quanto false
+        (selectedStatus === "Pago" && credit.IsBaixa === true) || // Pago: apenas true
+        (selectedStatus === "Pendente" && credit.IsBaixa === false); // Pendente: apenas false
+    
+      return matchesUnit && matchesDateRange && matchesStatus;
     });
   
-    // Filtra os créditos considerando o mês selecionado
-    const filteredCredits = credits.filter((credit) => {
-      const creditDate = new Date(credit.baixaDate);
-      const creditMonth = creditDate.getMonth() + 1;
-  
-      return month === 'Todos' || creditMonth === parseInt(month);
-    });
-  
-    // Atualiza os estados dos débitos e créditos filtrados
     setFilteredDebits(filteredDebits);
     setFilteredCredits(filteredCredits);
   };
 
-  const handleSelectYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const year = e.target.value;
-    setSelectedYear(year);
-  
-    // Filtra os débitos considerando o ano selecionado
-    const filteredDebits = debits.filter((debit) => {
-      const debitDate = new Date(debit.baixaDate);
-      const debitYear = debitDate.getFullYear();
-  
-      // Verifica unidade e ano
-      const matchesUnit =
-        (unitFilter === 'Todos' && debit.IsBaixa === true) ||
-        (debit.unitId === unitFilter && debit.IsBaixa === true);
-  
-      // Se o ano for "Todos", inclui todos os registros; caso contrário, verifica o ano
-      return matchesUnit && (year === 'Todos' || debitYear === parseInt(year));
-    });
-  
-    // Filtra os créditos considerando o ano selecionado
-    const filteredCredits = credits.filter((credit) => {
-      const creditDate = new Date(credit.baixaDate);
-      const creditYear = creditDate.getFullYear();
-  
-      // Verifica unidade e ano
-      const matchesUnit =
-        (unitFilter === 'Todos' && credit.IsBaixa === true) ||
-        (credit.unitId === unitFilter && credit.IsBaixa === true);
-  
-      return matchesUnit && (year === 'Todos' || creditYear === parseInt(year));
-    });
-  
-    // Atualiza os estados dos débitos e créditos filtrados
-    setFilteredDebits(filteredDebits);
-    setFilteredCredits(filteredCredits);
-  };
-
-
-  const handleSelectStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-    // const selectedStatus = e.target.value;
-    // setStatus(selectedStatus);
-  
-    // const filteredDebits = debits.filter((debit) => {
-    //   const matchesStatus =
-    //     selectedStatus === 'Todos' || 
-    //     (selectedStatus === 'pago' && debit.IsBaixa === true) || 
-    //     (selectedStatus === 'pendente' && debit.IsBaixa === false);
-  
-    //   return matchesStatus;
-    // });
-
-    // const filteredCredits = credits.filter((credit) => {
-    //   const matchesStatus =
-    //     selectedStatus === 'Todos' || 
-    //     (selectedStatus === 'pago' && credit.IsBaixa === true) || 
-    //     (selectedStatus === 'pendente' && credit.IsBaixa === false);
-  
-    //   return matchesStatus;
-    // });
-  
-    // setFilteredDebits(filteredDebits)
-    // setFilteredCredits(filteredCredits)
-  };
-  
   const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setStartDate(e.target.value);
     filterData(e.target.value, endDate);
@@ -329,7 +252,6 @@ export default function Dashboard() {
   const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEndDate(e.target.value);
     filterData(startDate, e.target.value);
-    console.log(endDate)
   };
   
   const filterData = (start: string, end: string) => {
@@ -352,15 +274,16 @@ export default function Dashboard() {
     setFilteredDebits(filteredDebits);
     setFilteredCredits(filteredCredits);
   };
+
+  const handleSelectStatusChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedStatus(e.target.value)
+  }
   
 
   const downloadPDF = async () => {
     // Transforme os dados necessários para o relatório
     const transformedDebitData = transformData(filteredDebits);
     const transformedCreditData = transformData(filteredCredits);
-
-    console.log(transformedDebitData)
-    console.log(transformedCreditData)
   
     // Monte o payload com dois objetos
     const payload = {
@@ -386,6 +309,8 @@ export default function Dashboard() {
     link.click();
   };
   
+  console.log(selectedStatus, filteredCredits)
+  console.log(selectedStatus, filteredDebits)
 
 
 
@@ -449,7 +374,7 @@ export default function Dashboard() {
         </div> */}
         <div>
           <label className="block text-sm mb-1">Status</label>
-          <select className="w-full max-w-xs px-3 py-2 border rounded-md" onChange={handleSelectStatusChange} value={status}>
+          <select className="w-full max-w-xs px-3 py-2 border rounded-md" onChange={(e) => setSelectedStatus(e.target.value)} value={selectedStatus}>
               <option value="Todos">Todos</option>
               <option value="pago">Pago</option>
               <option value="pendente">Pendente</option>

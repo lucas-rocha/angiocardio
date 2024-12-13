@@ -43,20 +43,36 @@ export default function ListUnit() {
   }, [])
 
   const handleDelete = async (id: number) => {
-    try {
-      const response = await fetch(`/api/unidades?id=${id}`, {
-        method: 'DELETE',
-      });
+    const result = await Swal.fire({
+      title: "Tem certeza?",
+      text: "Você não poderá desfazer essa ação!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Sim, excluir!",
+      cancelButtonText: "Cancelar",
+    });
 
-      if (response.ok) {
-        // Atualize a lista de unidades após excluir
-        setUnits((prevUnits) => prevUnits.filter((unit) => unit.id !== id));
-      } else {
-        console.error('Erro ao excluir unidade');
-        handleError()
+    if (result.isConfirmed) {
+      try {
+        const response = await fetch(`/api/unidades?id=${id}`, {
+          method: 'DELETE',
+        });
+  
+        if (response.ok) {
+          // Atualize a lista de unidades após excluir
+          setUnits((prevUnits) => prevUnits.filter((unit) => unit.id !== id));
+          Swal.fire("Excluído!", "O item foi excluído com sucesso.", "success");
+        } else {
+          console.error('Erro ao excluir unidade');
+          Swal.fire("Erro!", "Não foi possível excluir o item.", "error");
+          handleError()
+        }
+      } catch (error) {
+        console.error('Erro ao excluir unidade:', error);
+        Swal.fire("Erro!", "Não foi possível excluir o item.", "error");
       }
-    } catch (error) {
-      console.error('Erro ao excluir unidade:', error);
     }
   };
 
