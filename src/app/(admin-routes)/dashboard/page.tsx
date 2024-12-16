@@ -197,47 +197,100 @@ export default function Dashboard() {
   const handleSelectChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedUnit = e.target.value;
     setUnitFilter(selectedUnit);
-  
+
     // Filtra os dados considerando tanto o filtro do select quanto a pesquisa por data
     const filteredDebits = debits.filter((debit) => {
       const dateOfBaixa = new Date(debit.baixaDate);
       const debitDate = dateOfBaixa.toISOString().split("T")[0];
-    
+
+      const datePrevist = new Date(debit.expectedDate)
+      const debitprevist = datePrevist.toISOString().split("T")[0];
+
+      
       // Verifica se a unidade corresponde
       const matchesUnit =
         (selectedUnit === "Todos" && debit.IsBaixa === true) ||
         (debit.unitId === selectedUnit && debit.IsBaixa === true);
+
+        const matchesUnitPendente =
+          (selectedUnit === "Todos" && debit.IsBaixa === false) ||
+          (debit.unitId === selectedUnit && debit.IsBaixa === false);
     
       // Verifica se está dentro do intervalo de datas
       const matchesDateRange =
         (!startDate || debitDate >= startDate) &&
         (!endDate || debitDate <= endDate);
+
+      const matchesDateRangePrevist =  
+        (!startDate || debitprevist >= startDate) &&
+        (!endDate || debitprevist <= endDate);
     
       // Verifica se o status corresponde
       const matchesStatus =
         selectedStatus === "Todos" || // Todos: inclui tanto true quanto false
-        (selectedStatus === "Pago" && debit.IsBaixa === true) || // Pago: apenas true
-        (selectedStatus === "Pendente" && debit.IsBaixa === false); // Pendente: apenas false
+        (selectedStatus === "pago" && debit.IsBaixa === true) || // Pago: apenas true
+        (selectedStatus === "pendente" && debit.IsBaixa === false); // Pendente: apenas false
     
-      return matchesUnit && matchesDateRange && matchesStatus;
+      if(selectedStatus === "pendente") {
+        console.log("entrou em pendente")
+        return matchesUnitPendente && matchesDateRangePrevist;
+      } 
+      
+      if(selectedStatus === "pago") {
+        return matchesUnit && matchesDateRange;
+      }
+
+      if(selectedStatus === "Todos") {
+        return (matchesUnit || matchesUnitPendente) && (matchesDateRange || matchesDateRangePrevist)
+      }
+
     });
+
     
     const filteredCredits = credits.filter((credit) => {
       const dateOfBaixa = new Date(credit.baixaDate);
-      const creditDate = dateOfBaixa.toISOString().split("T")[0];
-  
-      const matchesUnit = (selectedUnit === "Todos" && credit.IsBaixa === true) || (credit.unitId === selectedUnit && credit.IsBaixa === true)
-  
-      const matchesDateRange =
-        (!startDate || creditDate >= startDate) &&
-        (!endDate || creditDate <= endDate);
-  
-        const matchesStatus =
-        selectedStatus === "Todos" || // Todos: inclui tanto true quanto false
-        (selectedStatus === "Pago" && credit.IsBaixa === true) || // Pago: apenas true
-        (selectedStatus === "Pendente" && credit.IsBaixa === false); // Pendente: apenas false
+      const debitDate = dateOfBaixa.toISOString().split("T")[0];
+
+      const datePrevist = new Date(credit.expectedDate)
+      const debitprevist = datePrevist.toISOString().split("T")[0];
+
+      
+      // Verifica se a unidade corresponde
+      const matchesUnit =
+        (selectedUnit === "Todos" && credit.IsBaixa === true) ||
+        (credit.unitId === selectedUnit && credit.IsBaixa === true);
+
+        const matchesUnitPendente =
+          (selectedUnit === "Todos" && credit.IsBaixa === false) ||
+          (credit.unitId === selectedUnit && credit.IsBaixa === false);
     
-      return matchesUnit && matchesDateRange && matchesStatus;
+      // Verifica se está dentro do intervalo de datas
+      const matchesDateRange =
+        (!startDate || debitDate >= startDate) &&
+        (!endDate || debitDate <= endDate);
+
+      const matchesDateRangePrevist =  
+        (!startDate || debitprevist >= startDate) &&
+        (!endDate || debitprevist <= endDate);
+    
+      // Verifica se o status corresponde
+      const matchesStatus =
+        selectedStatus === "Todos" || // Todos: inclui tanto true quanto false
+        (selectedStatus === "pago" && credit.IsBaixa === true) || // Pago: apenas true
+        (selectedStatus === "pendente" && credit.IsBaixa === false); // Pendente: apenas false
+    
+      if(selectedStatus === "pendente") {
+        console.log("entrou em pendente")
+        return matchesUnitPendente && matchesDateRangePrevist;
+      } 
+      
+      if(selectedStatus === "pago") {
+        return matchesUnit && matchesDateRange;
+      }
+
+      if(selectedStatus === "Todos") {
+        return (matchesUnit || matchesUnitPendente) && (matchesDateRange || matchesDateRangePrevist)
+      }
     });
   
     setFilteredDebits(filteredDebits);
@@ -309,8 +362,6 @@ export default function Dashboard() {
     link.click();
   };
   
-  console.log(selectedStatus, filteredCredits)
-  console.log(selectedStatus, filteredDebits)
 
 
 
