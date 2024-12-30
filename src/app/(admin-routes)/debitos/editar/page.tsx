@@ -7,11 +7,12 @@ import Swal from 'sweetalert2';
 import { format, parse } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import EditBaixa from '@/components/EditBaixa';
+import CurrencyInput from '@/components/CurrencyInput';
 
 type DebitEntry = {
   id: string;
   description: string;
-  valueToPay: string;
+  valueToPay: number;
   dueDate: string;
   expectedDate: string;
   issueDate: string;
@@ -32,7 +33,7 @@ interface DebitoUpdate {
   expectedDate: string;
   issueDate: string;
   dueDate: string;
-  valueToPay: string;
+  valueToPay: number;
   isBaixa: boolean;
   baixaDate?: string | null; // Adicionando baixaDate como opcional
 }
@@ -42,7 +43,7 @@ export default function EditDebit() {
   const searchParams = useSearchParams()
   const id = searchParams.get('id') // Obtém o ID da query string
   const [debit, setDebit] = useState<DebitEntry | null>(null)
-  const [valueToPay, setValueToPay] = useState('')
+  const [valueToPay, setValueToPay] = useState(0)
   const [description, setDescription] = useState('')
   const [selectedUnit, setSelectedUnit] = useState('')
   const [issueDate, setIssueDate] = useState('')
@@ -186,13 +187,7 @@ export default function EditDebit() {
             <div>
               <label className="block text-sm mb-1">Valor</label>
               <div className="relative">
-                <span className="absolute left-3 top-2">R$</span>
-                <input
-                  type="text"
-                  className="w-full pl-8 pr-3 py-2 border rounded-md"
-                  value={valueToPay}
-                  onChange={(e) => setValueToPay(e.target.value)}
-                />
+                <CurrencyInput value={valueToPay} onChange={(value) => setValueToPay(value)} />
               </div>
             </div>
           </div>

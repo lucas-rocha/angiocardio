@@ -84,7 +84,7 @@ export default function ListDebits() {
         setDebits(data);
         setFilterDebit(data)
 
-        console.log(data)
+        console.log("Teste data: ", data)
       } catch (error) {
         console.error('Error fetching units:', error);
       }
@@ -156,7 +156,7 @@ export default function ListDebits() {
   const normalizeDates = (items: CheckedItem[]) => {
     return items.map((item) => ({
       ...item,
-      dateBaixa: new Date(item.dateBaixa).toISOString(), // Converte para o formato ISO
+      dateBaixa: (item.dateBaixa == null) ? new Date().toISOString() : new Date(item.dateBaixa).toISOString(), // Converte para o formato ISO
     }));
   };
   
@@ -233,36 +233,17 @@ export default function ListDebits() {
   };
 
   const formatDate = (date: string) => {
-    return format(new Date(date), 'dd/MM/yyyy', { locale: ptBR })
-  }
+    if (!date) return null; // Tratar casos onde a data é nula
+    const [year, month, day] = date.split('-');
+    return new Date(Number(year), Number(month) - 1, Number(day)); // Criar data no formato local
+  };
 
-
-  // const saveDate = (id: string, date: string) => {
-  //   setUpdateDateAndId((prev) => {
-  //     // Verifica se o ID já existe no array
-  //     const exists = prev.some((item) => item.id === id);
-  
-  //     if (exists) {
-  //       // Substitui o objeto com o mesmo ID
-  //       return prev.map((item) =>
-  //         item.id === id ? { ...item, date } : item
-  //       );
-  //     } else {
-  //       // Adiciona um novo objeto ao array
-  //       return [...prev, { id, date }];
-  //     }
-  //   });
-
-  //   console.log(updateDateAndId)
-  // }
   const saveDate = (id: string, newDate: string) => {
     setCheckedItems((prev) =>
       prev.map((item) =>
         item.id === id ? { ...item, dateBaixa: newDate } : item
       )
     );
-
-    console.log(checkedItems)
   };
 
   return (
@@ -381,6 +362,18 @@ export default function ListDebits() {
                   scope="col"
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
+                  data de pagamento
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Status
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Editar
                 </th>
                 <th
@@ -424,6 +417,14 @@ export default function ListDebits() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {format(new Date(unit.expectedDate), 'dd/MM/yyyy', { locale: ptBR })}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {unit.baixaDate
+                    ? format(new Date(unit.baixaDate), 'dd/MM/yyyy', { locale: ptBR })
+                    : 'Sem data'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900  ">
+                    {unit.baixaDate ? "Pago" : "Pendente"}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <Link href={`/debitos/editar?id=${unit.id}`}>
