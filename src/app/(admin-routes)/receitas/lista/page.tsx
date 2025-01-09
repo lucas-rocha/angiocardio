@@ -86,16 +86,32 @@ export default function ListDebits() {
 
   const handleDelete = async (id: string) => {
     try {
-      const response = await fetch(`/api/creditos?id=${id}`, {
-        method: 'DELETE',
+      const result = await Swal.fire({
+        title: 'Tem certeza?',
+        text: 'Você não poderá reverter esta ação!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sim, excluir!',
+        cancelButtonText: 'Cancelar',
       });
 
-      if (response.ok) {
-        // Atualize a lista de unidades após excluir
-        setFilterDebit((prevDebits) => prevDebits.filter((debit) => debit.id !== id));
-      } else {
-        console.error('Erro ao excluir unidade');
+      if(result.isConfirmed) {
+        const response = await fetch(`/api/creditos?id=${id}`, {
+          method: 'DELETE',
+        });
+
+        if (response.ok) {
+          // Atualize a lista de unidades após excluir
+          setFilterDebit((prevDebits) => prevDebits.filter((debit) => debit.id !== id));
+          Swal.fire('Excluído!', 'O débito foi excluído com sucesso.', 'success');
+        } else {
+          Swal.fire('Erro!', 'Erro ao excluir o débito.', 'error');
+        }
       }
+
+
     } catch (error) {
       console.error('Erro ao excluir unidade:', error);
     }

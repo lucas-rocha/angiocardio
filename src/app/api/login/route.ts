@@ -1,6 +1,8 @@
 export async function POST(request: Request) {
   const { email, password } = await request.json()
 
+  console.log("Okokoko")
+
   if (email === 'angiocardiolitoral@gmail.com' && password === '123') {
     return new Response(
       JSON.stringify({ email, password }),

@@ -113,6 +113,8 @@ export default function Dashboard() {
   const [selectedMonth, setSelectedMonth] = useState<string>('Todos')
   const [selectedYear, setSelectedYear] = useState<string>('Todos')
   const [unitFilter, setUnitFilter] = useState('Todos');
+  const [startDate, setStartDate] = useState<string>(""); // Data inicial
+  const [endDate, setEndDate] = useState<string>("");
 
   useEffect(() => {
     const date = new Date()
@@ -324,6 +326,44 @@ export default function Dashboard() {
   };
   
 
+  const handleDateChange = () => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    console.log("MUDIY")
+
+    const filteredDebits = debits.filter((debit) => {
+      const baixaDate = new Date(debit.baixaDate);
+      return (
+        baixaDate >= start &&
+        baixaDate <= end &&
+        (unitFilter === "Todos" || debit.unitId === unitFilter) &&
+        debit.IsBaixa === true
+      );
+    });
+
+    console.log(filteredDebits)
+
+    const filteredCredits = credits.filter((credit) => {
+      const baixaDate = new Date(credit.baixaDate);
+      return (
+        baixaDate >= start &&
+        baixaDate <= end &&
+        (unitFilter === "Todos" || credit.unitId === unitFilter) &&
+        credit.IsBaixa === true
+      );
+    });
+
+    setFilteredDebits(filteredDebits);
+    setFilteredCredits(filteredCredits);
+  };
+
+  useEffect(() => {
+    if (startDate && endDate) {
+      handleDateChange();
+    }
+  }, [startDate, endDate, debits, credits, unitFilter]);
+
 
 
   return (
@@ -338,7 +378,33 @@ export default function Dashboard() {
               ))}
           </select>
         </div>
-        <div>
+        
+        <div className="flex gap-4">
+          <div>
+            <label className="block text-sm mb-1">Data Inicial:</label>
+            <input
+              type="date"
+              id="startDate"
+              value={startDate}
+              className="w-full px-3 py-2 border rounded-md"
+              onChange={(e) => setStartDate(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm mb-1">Data Final:</label>
+            <input
+              type="date"
+              id="endDate"
+              value={endDate}
+              className="w-full px-3 py-2 border rounded-md"
+              onChange={(e) => setEndDate(e.target.value)}
+            />
+          </div>
+
+        </div>
+
+        {/* <div>
           <label className="block text-sm mb-1">Mês</label>
           <select className="w-full max-w-xs px-3 py-2 border rounded-md" onChange={handleSelectMonthChange} value={selectedMonth}>
             <option value="Todos">Todos</option>
@@ -356,8 +422,8 @@ export default function Dashboard() {
             <option value="12">Dezembro</option>
             
         </select>
-        </div>
-        <div>
+        </div> */}
+        {/* <div>
           <label className="block text-sm mb-1">Ano</label>
             <select className="w-full max-w-xs px-3 py-2 border rounded-md" onChange={handleSelectYearChange} value={selectedYear}>
               <option value="Todos">Todos</option>
@@ -365,7 +431,7 @@ export default function Dashboard() {
                 <option key={year} value={year}>{year}</option>
               ))}
           </select>
-        </div>
+        </div> */}
         <div>
           <button className="px-4 py-2 border border-gray-300 rounded-[5px] flex items-center space-x-2 hover:bg-gray-100" onClick={downloadPDF}>
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

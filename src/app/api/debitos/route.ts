@@ -61,6 +61,7 @@ export async function POST(request: Request) {
         expectedDate: new Date(data.expectedDate),
         issueDate: new Date(data.issueDate),
         unitId: data.unitId,
+        isOverdue: data.isOverdue
       },
     });
 
@@ -92,7 +93,7 @@ export async function PATCH(request: Request) {
       updates.map((item: { id: string; dateBaixa: string }) =>
         prisma.debits.update({
           where: { id: item.id },
-          data: { baixaDate: item.dateBaixa, IsBaixa: true },
+          data: { baixaDate: new Date(item.dateBaixa), IsBaixa: true },
         })
       )
     );
@@ -173,7 +174,8 @@ export async function PUT(request: Request) {
         dueDate: new Date(primarydueDate.getTime() + primarydueDate.getTimezoneOffset() * 60000),
         issueDate: new Date(primaryissueDate.getTime() + primaryissueDate.getTimezoneOffset() * 60000),
         baixaDate: baixaDate,
-        IsBaixa: data.isBaixa
+        IsBaixa: data.isBaixa,
+        isOverdue: data.isOverdue
       },
     });
 

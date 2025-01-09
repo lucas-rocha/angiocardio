@@ -35,6 +35,7 @@ interface DebitoUpdate {
   valueToPay: string;
   isBaixa: boolean;
   baixaDate?: string | null; // Adicionando baixaDate como opcional
+  isOverdue: boolean;
 }
 
 export default function EditDebit() {
@@ -50,6 +51,9 @@ export default function EditDebit() {
   const [dueDate, setDueDate] = useState('')
   const [isPago, setIsPago] = useState(false)
   const [newDateBaixa, setNewDateBaixa] = useState('')
+  const [baixaDate, setBaixaDate] = useState('')
+  const [isOverdue, setIsOverdue] = useState(false)
+  
 
   const handleSuccess = () => {
     Swal.fire({
@@ -90,6 +94,11 @@ export default function EditDebit() {
           setDueDate(formattedDueDate)
 
           setIsPago(data.IsBaixa)
+
+          const parseBaixaDate = format(new Date(data.baixaDate), 'dd/MM/yyyy', { locale: ptBR })
+          const parsedBaixaDate = parse(parseBaixaDate, 'dd/MM/yyyy', new Date())
+          const formattedBaixaDate = format(parsedBaixaDate, 'dd/MM/yyyy')
+          setBaixaDate(formattedBaixaDate)
         } else {
           console.error('Erro ao buscar unidade.')
         }
@@ -105,6 +114,16 @@ export default function EditDebit() {
     try {
       const isTrue = newDateBaixa ? true : false
 
+      const checkOverdue = () => {
+        if(baixaDate > expectedDate) {
+          return true
+        }
+
+        return false
+      }
+
+      console.log(checkOverdue())
+
       const body: DebitoUpdate = {
         description: description,
         expectedDate: expectedDate,
@@ -112,6 +131,7 @@ export default function EditDebit() {
         dueDate: dueDate,
         valueToPay: valueToPay,
         isBaixa: isTrue,
+        isOverdue: checkOverdue()
       };
 
       if (newDateBaixa) {
@@ -148,6 +168,7 @@ export default function EditDebit() {
   
   const handleNewDateChange = (newDate: string) => {
     setNewDateBaixa(newDate)// Salve ou trate a nova data aqui
+    setBaixaDate(newDate)
   };
 
   return (
@@ -239,6 +260,7 @@ export default function EditDebit() {
                 isPago={isPago}
                 onStatusChange={handleStatusChange}
                 onDateChange={handleNewDateChange}
+                baixaDate={baixaDate}
               />
             </div>
           </div>

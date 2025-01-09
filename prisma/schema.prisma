@@ -76,6 +76,7 @@ model Debits {
   issueDate DateTime
   IsBaixa Boolean @default(false)
   baixaDate DateTime?
+  isOverdue Boolean?
 
   unitId String
   unit Unit @relation(fields: [unitId], references: [id])
@@ -90,6 +91,7 @@ model Credits {
   issueDate DateTime
   IsBaixa Boolean @default(false)
   baixaDate DateTime?
+  isOverdue Boolean?
 
   unitId String
   unit Unit @relation(fields: [unitId], references: [id])

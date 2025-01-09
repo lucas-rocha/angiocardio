@@ -4,9 +4,10 @@ interface EditBaixaProps {
   isPago: boolean;
   onStatusChange: (newStatus: boolean) => void;
   onDateChange?: (newDate: string) => void;
+  baixaDate: string;
 }
 
-export default function EditBaixa({ isPago, onStatusChange, onDateChange }: EditBaixaProps) {
+export default function EditBaixa({ isPago, onStatusChange, onDateChange, baixaDate }: EditBaixaProps) {
   const [showInput, setShowInput] = useState(false); // Controla a exibição do input
   const [newBaixaDate, setNewBaixaDate] = useState('');
 
@@ -36,7 +37,7 @@ export default function EditBaixa({ isPago, onStatusChange, onDateChange }: Edit
     <div className="p-4 border rounded-md">
       {isPago ? (
         <div>
-          <p className="text-green-600 font-semibold">Pagamento efetuado</p>
+          <p className="text-green-600 font-semibold">Pagamento efetuado em {baixaDate}</p>
           <button
             type="button"
             className="mt-2 px-3 py-2 bg-red-500 text-white rounded-md"

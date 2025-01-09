@@ -47,8 +47,6 @@ export default function ListDebits() {
   const [checkAll, setCheckAll] = useState(false);
   const [units, setUnits] = useState<Unit[]>([])
   const [unitFilter, setUnitFilter] = useState('Todos');
-  const [isEditing, setIsEditing] = useState(false);
-  const [updateDateAndId, setUpdateDateAndId] = useState<UpdateDate[]>([])
 
   const handleSuccess = () => {
     Swal.fire({
@@ -72,7 +70,6 @@ export default function ListDebits() {
       ? prev.filter((item) => item.id !== id) // Remove o item pelo ID
       : [...prev, { id, dateBaixa }] // Adiciona um novo item
     );
-    console.log(checkedItems)
   };
 
   useEffect(() => {
@@ -95,16 +92,31 @@ export default function ListDebits() {
 
   const handleDelete = async (id: string) => {
     try {
-      const response = await fetch(`/api/debitos?id=${id}`, {
-        method: 'DELETE',
+      const result = await Swal.fire({
+        title: 'Tem certeza?',
+        text: 'Você não poderá reverter esta ação!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sim, excluir!',
+        cancelButtonText: 'Cancelar',
       });
 
-      if (response.ok) {
-        // Atualize a lista de unidades após excluir
-        setFilterDebit((prevDebits) => prevDebits.filter((debit) => debit.id !== id));
-      } else {
-        console.error('Erro ao excluir unidade');
+      if(result.isConfirmed) {
+        const response = await fetch(`/api/debitos?id=${id}`, {
+          method: 'DELETE',
+        });
+
+        if (response.ok) {
+          // Atualize a lista de unidades após excluir
+          setFilterDebit((prevDebits) => prevDebits.filter((debit) => debit.id !== id));
+          Swal.fire('Excluído!', 'O débito foi excluído com sucesso.', 'success');
+        } else {
+          Swal.fire('Erro!', 'Erro ao excluir o débito.', 'error');
+        }
       }
+
     } catch (error) {
       console.error('Erro ao excluir unidade:', error);
     }
@@ -147,6 +159,8 @@ export default function ListDebits() {
 
   const updateDebits = async () => {
     const normalizedItems = normalizeDates(checkedItems);
+    console.log("iTEMS:", checkedItems)
+    console.log("iTEMS NORM:", normalizedItems)
 
     try {
       const response = await fetch('/api/debitos', {
@@ -245,8 +259,6 @@ export default function ListDebits() {
         item.id === id ? { ...item, dateBaixa: newDate } : item
       )
     );
-
-    console.log(checkedItems)
   };
 
   return (
@@ -365,6 +377,12 @@ export default function ListDebits() {
                   scope="col"
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
+                  Status
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Editar
                 </th>
                 <th
@@ -408,6 +426,9 @@ export default function ListDebits() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {format(new Date(unit.expectedDate), 'dd/MM/yyyy', { locale: ptBR })}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {unit.IsBaixa ? "Pago" : "Pendente"}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <Link href={`/debitos/editar?id=${unit.id}`}>

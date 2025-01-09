@@ -75,7 +75,22 @@ export default function DebitosRegistro() {
 
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault() 
+    e.preventDefault()
+
+    const currentDate = new Date()
+    const expectedDateInput = new Date(expectedDate)
+
+    const checkOverdue = () => {
+      if(expectedDateInput > currentDate) {
+        return true
+      }
+
+      if(expectedDateInput < currentDate) {
+        return false
+      }
+    }
+
+    console.log(checkOverdue())
 
     try {
       const response = await fetch('/api/debitos', {
@@ -89,7 +104,8 @@ export default function DebitosRegistro() {
           dueDate,
           expectedDate,
           issueDate,
-          unitId: selectedUnit
+          unitId: selectedUnit,
+          isOverdue: checkOverdue()
          }),
       });
 
