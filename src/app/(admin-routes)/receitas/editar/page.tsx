@@ -240,6 +240,7 @@ export default function EditDebit() {
                 isPago={isPago}
                 onStatusChange={handleStatusChange}
                 onDateChange={handleNewDateChange}
+                baixaDate=''
               />
             </div>
           </div>

@@ -37,7 +37,7 @@ export default function EditBaixa({ isPago, onStatusChange, onDateChange, baixaD
     <div className="p-4 border rounded-md">
       {isPago ? (
         <div>
-          <p className="text-green-600 font-semibold">Pagamento efetuado em {baixaDate}</p>
+          <p className="text-green-600 font-semibold">Pagamento efetuado</p>
           <button
             type="button"
             className="mt-2 px-3 py-2 bg-red-500 text-white rounded-md"

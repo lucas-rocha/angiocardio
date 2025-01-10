@@ -105,7 +105,7 @@ export default function ListDebits() {
         if (response.ok) {
           // Atualize a lista de unidades após excluir
           setFilterDebit((prevDebits) => prevDebits.filter((debit) => debit.id !== id));
-          Swal.fire('Excluído!', 'O débito foi excluído com sucesso.', 'success');
+          Swal.fire('Excluído!', 'O Crédtio foi excluído com sucesso.', 'success');
         } else {
           Swal.fire('Erro!', 'Erro ao excluir o débito.', 'error');
         }

@@ -118,7 +118,7 @@ export default function ListDebits() {
       }
 
     } catch (error) {
-      console.error('Erro ao excluir unidade:', error);
+      console.error('Erro ao excluir o débito:', error);
     }
   };
 
