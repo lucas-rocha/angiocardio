@@ -139,7 +139,8 @@ export default function Dashboard() {
   useEffect(() => {
     async function fetchDebits() {
       try {
-        const response = await fetch('/api/debitos');
+        const response = await fetch('/api/debitos')
+        console.log(response)
         const data: DebitEntry[] = await response.json();
         
         setDebits(data);
