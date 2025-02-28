@@ -47,6 +47,7 @@ export default function ListDebits() {
   const [checkAll, setCheckAll] = useState(false);
   const [units, setUnits] = useState<Unit[]>([])
   const [unitFilter, setUnitFilter] = useState('Todos');
+  const [status, setStatus] = useState('Todos')
 
   const handleSuccess = () => {
     Swal.fire({
@@ -203,8 +204,31 @@ export default function ListDebits() {
 
     // Filtra os dados considerando tanto o filtro do select quanto a pesquisa
     const filtered = debits.filter((debit) => {
+
       const matchesUnit = selectedUnit === 'Todos' || debit.unitId === selectedUnit;
       const matchesSearch = debit.description.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesUnit && matchesSearch;
+    });
+
+    setFilterDebit(filtered);
+  } 
+
+  const handleSelectChangeStatus = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedStatus = e.target.value;
+    setStatus(selectedStatus)
+
+    const checkStatus = () => {
+      if(status == "pago") {
+        return true
+      } else {
+        return null
+      }
+    }
+
+    const filtered = debits.filter((debit) => {
+      const matchesUnit = unitFilter === 'Todos' || debit.unitId === unitFilter;
+      const matchesSearch = debit.description.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStatus = status === 'todos' || checkStatus()
       return matchesUnit && matchesSearch;
     });
 
@@ -293,7 +317,14 @@ export default function ListDebits() {
             ))}
           </select>
         </div>
-
+        <div>
+        <label className="block text-sm mb-1">Status</label>
+          <select className="w-full max-w-xs px-3 py-2 border rounded-md" onChange={handleSelectChangeStatus}>
+            <option value="Todos">Todos</option>
+            <option value="pago">Pago</option>
+            <option value="pendente">Pendente</option>
+          </select>
+        </div>
       </div>
 
       {checkedItems.length !== 0 && (
@@ -365,13 +396,25 @@ export default function ListDebits() {
                   scope="col"
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
+                  Data de Emissão
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Data de Vencimento
                 </th>
                 <th
                   scope="col"
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
-                  data prevista de pagamento
+                  Data prevista de pagamento
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Data de Pagamento
                 </th>
                 <th
                   scope="col"
@@ -422,10 +465,16 @@ export default function ListDebits() {
                     }).format(isNaN(Number(unit.valueToPay)) ? 0 : Number(unit.valueToPay))}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {format(new Date(unit.issueDate), 'dd/MM/yyyy', { locale: ptBR })}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {format(new Date(unit.dueDate), 'dd/MM/yyyy', { locale: ptBR })}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {format(new Date(unit.expectedDate), 'dd/MM/yyyy', { locale: ptBR })}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {format(new Date(unit.baixaDate), 'dd/MM/yyyy', { locale: ptBR })}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {unit.IsBaixa ? "Pago" : "Pendente"}
