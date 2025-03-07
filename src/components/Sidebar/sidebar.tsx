@@ -55,7 +55,7 @@ export default function Sidebar() {
   return (
     <div className="flex h-screen w-80 flex-col bg-[#F5F7F9] p-6 border-r border-[#D3D3D3]">
       <div className="mb-8">
-        <h1 className="text-xl font-semibold text-gray-700">Angiocardio Litoral</h1>
+        {/* <h1 className="text-xl font-semibold text-gray-700">Angiocardio Litoral</h1> */}
       </div>
       
       <nav className="flex flex-1 flex-col gap-2">

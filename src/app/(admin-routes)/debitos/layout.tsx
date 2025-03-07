@@ -11,18 +11,13 @@ interface PrivateLayoutProps {
 export default async function PrivateLayout({ children }: PrivateLayoutProps) {
   const session = await getServerSession(nextAuthOptions)
   
-  if(!session) {
-    redirect('/')
+  if(session?.user.role === 'USER') {
+    redirect('/dashboard')
   }
 
   return (
-    <div className="flex">
-      <div className="fixed top-0 left-0 h-full w-[250px] bg-gray-800">
-        <Sidebar />
-      </div>
-      <div className="ml-[350px] flex w-full p-6">
-        {children}
-      </div>
+    <div>
+      {children}
     </div>
   )
 }

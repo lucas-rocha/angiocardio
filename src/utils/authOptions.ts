@@ -2,6 +2,12 @@
 import { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 
+interface UserProps {
+  email: string;
+  password: string;
+  role: string
+}
+
 const nextAuthOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -39,13 +45,15 @@ const nextAuthOptions: NextAuthOptions = {
   },
   callbacks: {
     async jwt({ token, user }) {
-      user && (token.user = user)
-      return token
+      if (user) {
+        token.user = user; // Adiciona o usuário completo ao token
+      }
+      return token;
     },
     async session({ session, token }) {
-      session = token.user as any
-      return session
-    }
+      session.user = token.user as UserProps; // Aqui, estamos afirmando que o tipo é UserProps
+      return session;
+    },
   }
 }
 

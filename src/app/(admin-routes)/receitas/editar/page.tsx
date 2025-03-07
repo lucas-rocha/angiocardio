@@ -7,6 +7,7 @@ import Swal from 'sweetalert2';
 import { format, parse } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import EditBaixa from '@/components/EditBaixa';
+import CurrencyInput from '@/components/CurrencyInput';
 
 type DebitEntry = {
   id: string;
@@ -32,7 +33,7 @@ interface DebitoUpdate {
   expectedDate: string;
   issueDate: string;
   dueDate: string;
-  valueToPay: string;
+  valueToPay: number;
   isBaixa: boolean;
   baixaDate?: string | null; // Adicionando baixaDate como opcional
 }
@@ -42,7 +43,7 @@ export default function EditDebit() {
   const searchParams = useSearchParams()
   const id = searchParams.get('id') // Obtém o ID da query string
   const [debit, setDebit] = useState<DebitEntry | null>(null)
-  const [valueToPay, setValueToPay] = useState('')
+  const [valueToPay, setValueToPay] = useState(0)
   const [description, setDescription] = useState('')
   const [selectedUnit, setSelectedUnit] = useState('')
   const [issueDate, setIssueDate] = useState('')
@@ -164,6 +165,9 @@ export default function EditDebit() {
       <h1 className="text-xl font-semibold text-gray-900 mb-6">Editar lançamento de débito</h1>
 
       <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="space-y-6">
+        {isPago && (
+          <p className="text-red-600">*Para editar qualquer campo é necessário cancelar o pagamento primeiro</p>
+        )}
         <div className="space-y-4">
           {/* <div>
             <label className="block text-sm mb-1">Selecione a unidade</label>
@@ -182,17 +186,16 @@ export default function EditDebit() {
                 className="w-full px-3 py-2 border rounded-md"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
+                disabled={isPago ? true : false}
               />
             </div>
             <div>
               <label className="block text-sm mb-1">Valor</label>
               <div className="relative">
-                <span className="absolute left-3 top-2">R$</span>
-                <input
-                  type="text"
-                  className="w-full pl-8 pr-3 py-2 border rounded-md"
+                <CurrencyInput 
                   value={valueToPay}
-                  onChange={(e) => setValueToPay(e.target.value)}
+                  onChange={(value) => setValueToPay(value)}
+                  disabled={isPago ? true : false}
                 />
               </div>
             </div>
@@ -207,6 +210,7 @@ export default function EditDebit() {
                   className="w-full px-3 py-2 border rounded-md"
                   value={issueDate}
                   onChange={(e) => setIssueDate(e.target.value)}
+                  disabled={isPago ? true : false}
                 />
                 <CalendarIcon className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
               </div>
@@ -219,6 +223,7 @@ export default function EditDebit() {
                   className="w-full px-3 py-2 border rounded-md"
                   value={dueDate}
                   onChange={(e) => setDueDate(e.target.value)}
+                  disabled={isPago ? true : false}
                 />
                 <CalendarIcon className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
               </div>
@@ -231,6 +236,7 @@ export default function EditDebit() {
                   className="w-full px-3 py-2 border rounded-md"
                   value={expectedDate}
                   onChange={(e) => SetExpectedDate(e.target.value)}
+                  disabled={isPago ? true : false}
                 />
                 <CalendarIcon className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
               </div>

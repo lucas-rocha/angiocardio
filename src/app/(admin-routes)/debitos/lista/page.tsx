@@ -69,6 +69,7 @@ export default function ListDebits() {
     // : [...prev, id]
     // );
     // console.log(checkedItems)
+    console.log("OIOIOI")
     setCheckedItems((prev) =>
     prev.some((item) => item.id === id)
       ? prev.filter((item) => item.id !== id) // Remove o item pelo ID
@@ -84,8 +85,6 @@ export default function ListDebits() {
         
         setDebits(data);
         setFilterDebit(data)
-
-        console.log(data)
       } catch (error) {
         console.error('Error fetching units:', error);
       }
@@ -132,8 +131,7 @@ export default function ListDebits() {
     } else {
       setCheckedItems(debits.map((unit) => {
         return { id: unit.id, dateBaixa: unit.baixaDate }
-      })); // Marca tudo
-      console.log(checkedItems)
+      }));
     }
     setCheckAll(!checkAll);
   };
@@ -156,15 +154,14 @@ export default function ListDebits() {
   const normalizeDates = (items: CheckedItem[]) => {
     return items.map((item) => ({
       ...item,
-      dateBaixa: new Date(item.dateBaixa).toISOString(), // Converte para o formato ISO
+      dateBaixa: item.dateBaixa
+        ? new Date(item.dateBaixa).toISOString() // Converte para o formato ISO se não for null
+        : new Date().toISOString(), // Usa a data atual se for null
     }));
   };
   
-
   const updateDebits = async () => {
     const normalizedItems = normalizeDates(checkedItems);
-    console.log("iTEMS:", checkedItems)
-    console.log("iTEMS NORM:", normalizedItems)
 
     try {
       const response = await fetch('/api/debitos', {
@@ -180,7 +177,7 @@ export default function ListDebits() {
       }
   
       const result = await response.json();
-      console.log('Resultado:', result);
+      
       handleSuccess()
       setCheckedItems([])
     } catch (error) {
@@ -189,14 +186,14 @@ export default function ListDebits() {
   };
 
   const checkStatus = (statusBaixa: boolean, expectedDate: string) => {
-    console.log(statusBaixa)
     if(statusBaixa === true) {
       return 'pago'
     }
 
     if(statusBaixa === false) {
       const parseExpectedDate = new Date(expectedDate)
-      if(parseExpectedDate <= new Date()) {
+      console.log(parseExpectedDate < new Date())
+      if(parseExpectedDate < new Date()) {
         return 'vencido'
       }
 
@@ -504,7 +501,7 @@ export default function ListDebits() {
                     }
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {unit.IsBaixa ? "Pago" : "Pendente"}
+                    {checkStatus(unit.IsBaixa, unit.expectedDate)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <Link href={`/debitos/editar?id=${unit.id}`}>

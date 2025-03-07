@@ -219,7 +219,11 @@ export default function EditDebit() {
                   value={valueToPay}
                   onChange={(e) => setValueToPay(e.target.value)}
                 /> */}
-                <CurrencyInput value={valueToPay} onChange={(value) => setValueToPay(value)} />
+                <CurrencyInput 
+                  value={valueToPay}
+                  onChange={(value) => setValueToPay(value)}
+                  disabled={isPago ? true : false}
+                />
               </div>
             </div>
           </div>

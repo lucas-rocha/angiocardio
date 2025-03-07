@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Pencil, Trash2, Search, Clipboard, PlusCircle } from 'lucide-react'
 import { format } from 'date-fns'
+import { toZonedTime } from 'date-fns-tz'
 import { ptBR } from 'date-fns/locale'
 import Link from 'next/link'
 import EditData from '@/components/EditData'
@@ -41,6 +42,10 @@ export default function ListDebits() {
   const [checkAll, setCheckAll] = useState(false);
   const [units, setUnits] = useState<Unit[]>([])
   const [unitFilter, setUnitFilter] = useState('Todos');
+  const [status, setStatus] = useState('Todos')
+
+
+  const timeZone = 'America/Sao_Paulo'; 
 
   const handleSuccess = () => {
     Swal.fire({
@@ -154,7 +159,9 @@ export default function ListDebits() {
   const normalizeDates = (items: CheckedItem[]) => {
     return items.map((item) => ({
       ...item,
-      dateBaixa: new Date(item.dateBaixa).toISOString(), // Converte para o formato ISO
+      dateBaixa: item.dateBaixa
+        ? new Date(item.dateBaixa).toISOString() // Converte para o formato ISO se não for null
+        : new Date().toISOString(), // Usa a data atual se for null
     }));
   };
 
@@ -183,6 +190,22 @@ export default function ListDebits() {
     }
   };
 
+  const checkStatus = (statusBaixa: boolean, expectedDate: string) => {
+    if(statusBaixa === true) {
+      return 'pago'
+    }
+
+    if(statusBaixa === false) {
+      const parseExpectedDate = new Date(expectedDate)
+      console.log(parseExpectedDate < new Date())
+      if(parseExpectedDate < new Date()) {
+        return 'vencido'
+      }
+
+      return 'pendente'
+    }
+  }
+
   const handleSearch = (query: string) => {
     setSearchQuery(query);
   
@@ -190,7 +213,8 @@ export default function ListDebits() {
     const filtered = debits.filter((debit) => {
       const matchesUnit = unitFilter === 'Todos' || debit.unitId === unitFilter;
       const matchesSearch = debit.description.toLowerCase().includes(query.toLowerCase());
-      return matchesUnit && matchesSearch;
+      const matchesStatus = status === 'Todos' || status === checkStatus(debit.IsBaixa, debit.expectedDate)
+      return matchesUnit && matchesSearch && matchesStatus;
     });
   
     setFilterDebit(filtered);
@@ -204,7 +228,23 @@ export default function ListDebits() {
     const filtered = debits.filter((debit) => {
       const matchesUnit = selectedUnit === 'Todos' || debit.unitId === selectedUnit;
       const matchesSearch = debit.description.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesUnit && matchesSearch;
+      const matchesStatus = status === 'Todos' || status === checkStatus(debit.IsBaixa, debit.expectedDate)
+
+      return matchesUnit && matchesSearch && matchesStatus;
+    });
+
+    setFilterDebit(filtered);
+  } 
+
+  const handleSelectChangeStatus = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedStatus = e.target.value;
+    setStatus(selectedStatus)
+
+    const filtered = debits.filter((debit) => {
+      const matchesUnit = unitFilter === 'Todos' || debit.unitId === unitFilter;
+      const matchesSearch = debit.description.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStatus = selectedStatus === 'Todos' || selectedStatus === checkStatus(debit.IsBaixa, debit.expectedDate)
+      return matchesUnit && matchesSearch && matchesStatus;
     });
 
     setFilterDebit(filtered);
@@ -254,15 +294,23 @@ export default function ListDebits() {
           </div>
         </div>
         <div>
-            <label className="block text-sm mb-1">Selecione a unidade</label>
-            <select className="w-full max-w-xs px-3 py-2 border rounded-md" onChange={handleSelectChange}>
-             <option value="Todos">Todos</option>
-              {units.map(unit => (
-                <option key={unit.id} value={unit.id}>{unit.Description}</option>
-              ))}
+          <label className="block text-sm mb-1">Selecione a unidade</label>
+          <select className="w-full max-w-xs px-3 py-2 border rounded-md" onChange={handleSelectChange}>
+            <option value="Todos">Todos</option>
+            {units.map(unit => (
+              <option key={unit.id} value={unit.id}>{unit.Description}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm mb-1">Status</label>
+            <select className="w-full max-w-xs px-3 py-2 border rounded-md" onChange={handleSelectChangeStatus}>
+              <option value="Todos">Todos</option>
+              <option value="pago">Pago</option>
+              <option value="vencido">Vencido</option>
+              <option value="pendente">Pendente</option>
             </select>
-          </div>
-
+        </div>
       </div>
 
       {checkedItems.length !== 0 && (
@@ -328,7 +376,19 @@ export default function ListDebits() {
                   scope="col"
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
+                  Unidade
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Valor
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Data de Emissão
                 </th>
                 <th
                   scope="col"
@@ -341,6 +401,12 @@ export default function ListDebits() {
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
                   data prevista de recebimento
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Data de Pagamento
                 </th>
                 <th
                   scope="col"
@@ -389,10 +455,16 @@ export default function ListDebits() {
                     {unit.description}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {unit.unit.Description}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   {new Intl.NumberFormat('pt-BR', {
                       style: 'currency',
                       currency: 'BRL'
                     }).format(isNaN(Number(unit.valueToPay)) ? 0 : Number(unit.valueToPay))}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {format(new Date(unit.issueDate), 'dd/MM/yyyy', { locale: ptBR })}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {format(new Date(unit.dueDate), 'dd/MM/yyyy', { locale: ptBR })}
@@ -401,7 +473,13 @@ export default function ListDebits() {
                     {format(new Date(unit.expectedDate), 'dd/MM/yyyy', { locale: ptBR })}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {unit.IsBaixa ? "Pago" : "Pendente"}
+                    {unit.baixaDate ?
+                      format(toZonedTime(new Date(unit.baixaDate), timeZone), 'dd/MM/yyyy', { locale: ptBR })
+                      :'N/A'
+                    }
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {checkStatus(unit.IsBaixa, unit.expectedDate)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <Link href={`/receitas/editar?id=${unit.id}`}>
@@ -409,12 +487,16 @@ export default function ListDebits() {
                     </Link>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    {unit.IsBaixa === true ?
+                      '-'
+                    :
                     <button 
                       className="text-red-600 hover:text-red-900"
                       onClick={() => handleDelete(unit.id)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
+                    }
                   </td>
                   {checkedItems.length !== 0 &&
                     checkedItems.some((item) => item.id === unit.id) && ( // Verifica se o ID está nos checkedItems

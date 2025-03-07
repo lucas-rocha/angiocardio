@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-function CurrencyInput({ value, onChange }: { value: number; onChange: (value: number) => void }) {
+function CurrencyInput({ value, onChange, disabled }: { value: number; onChange: (value: number) => void; disabled?: boolean }) {
   const [displayValue, setDisplayValue] = useState("");
 
   // Atualiza o valor de exibição quando o valor muda externamente
@@ -31,6 +31,7 @@ function CurrencyInput({ value, onChange }: { value: number; onChange: (value: n
       value={displayValue}
       onChange={handleInputChange}
       className="w-full pl-4 pr-3 py-2 border rounded-md"
+      disabled={disabled}
     />
   );
 }
