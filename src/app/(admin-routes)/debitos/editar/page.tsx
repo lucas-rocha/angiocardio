@@ -185,6 +185,9 @@ export default function EditDebit() {
       <h1 className="text-xl font-semibold text-gray-900 mb-6">Editar lançamento de débito</h1>
 
       <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="space-y-6">
+        {isPago && (
+          <p className="text-red-600">*Para editar qualquer campo é necessário cancelar o pagamento primeiro</p>
+        )}
         <div className="space-y-4">
           {/* <div>
             <label className="block text-sm mb-1">Selecione a unidade</label>
@@ -203,6 +206,7 @@ export default function EditDebit() {
                 className="w-full px-3 py-2 border rounded-md"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
+                disabled={isPago ? true : false}
               />
             </div>
             <div>
@@ -229,6 +233,7 @@ export default function EditDebit() {
                   className="w-full px-3 py-2 border rounded-md"
                   value={issueDate}
                   onChange={(e) => setIssueDate(e.target.value)}
+                  disabled={isPago ? true : false}
                 />
                 <CalendarIcon className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
               </div>
@@ -241,6 +246,7 @@ export default function EditDebit() {
                   className="w-full px-3 py-2 border rounded-md"
                   value={dueDate}
                   onChange={(e) => setDueDate(e.target.value)}
+                  disabled={isPago ? true : false}
                 />
                 <CalendarIcon className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
               </div>
@@ -253,6 +259,7 @@ export default function EditDebit() {
                   className="w-full px-3 py-2 border rounded-md"
                   value={expectedDate}
                   onChange={(e) => SetExpectedDate(e.target.value)}
+                  disabled={isPago ? true : false}
                 />
                 <CalendarIcon className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
               </div>

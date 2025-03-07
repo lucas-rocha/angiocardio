@@ -12,6 +12,15 @@ export async function POST(request: Request) {
     // if (!data.name) {
     //   return NextResponse.json({ error: 'O campo "name" é obrigatório.' }, { status: 400 });
     // }
+    const existingUnit = await prisma.unit.findFirst({
+      where: {
+        Description: data.newUnit
+      }
+    })
+
+    if(existingUnit) {
+      return NextResponse.json({ error: 'Unidade já existente.' }, { status: 400 });
+    }
 
     // Criação da unidade no banco de dados
     const newUnit = await prisma.unit.create({

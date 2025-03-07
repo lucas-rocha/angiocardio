@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Pencil, Trash2, Search, Clipboard, PlusCircle, CalendarIcon } from 'lucide-react'
 import { format } from 'date-fns'
+import { toZonedTime } from 'date-fns-tz'
 import { ptBR } from 'date-fns/locale'
 import Link from 'next/link'
 import transformData from '@/utils/dataToData'
@@ -48,6 +49,8 @@ export default function ListDebits() {
   const [units, setUnits] = useState<Unit[]>([])
   const [unitFilter, setUnitFilter] = useState('Todos');
   const [status, setStatus] = useState('Todos')
+
+  const timeZone = 'America/Sao_Paulo'; 
 
   const handleSuccess = () => {
     Swal.fire({
@@ -185,6 +188,22 @@ export default function ListDebits() {
     }
   };
 
+  const checkStatus = (statusBaixa: boolean, expectedDate: string) => {
+    console.log(statusBaixa)
+    if(statusBaixa === true) {
+      return 'pago'
+    }
+
+    if(statusBaixa === false) {
+      const parseExpectedDate = new Date(expectedDate)
+      if(parseExpectedDate <= new Date()) {
+        return 'vencido'
+      }
+
+      return 'pendente'
+    }
+  }
+
   const handleSearch = (query: string) => {
     setSearchQuery(query);
   
@@ -192,7 +211,8 @@ export default function ListDebits() {
     const filtered = debits.filter((debit) => {
       const matchesUnit = unitFilter === 'Todos' || debit.unitId === unitFilter;
       const matchesSearch = debit.description.toLowerCase().includes(query.toLowerCase());
-      return matchesUnit && matchesSearch;
+      const matchesStatus = status === 'Todos' || status === checkStatus(debit.IsBaixa, debit.expectedDate)
+      return matchesUnit && matchesSearch && matchesStatus;
     });
   
     setFilterDebit(filtered);
@@ -207,7 +227,9 @@ export default function ListDebits() {
 
       const matchesUnit = selectedUnit === 'Todos' || debit.unitId === selectedUnit;
       const matchesSearch = debit.description.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesUnit && matchesSearch;
+      const matchesStatus = status === 'Todos' || status === checkStatus(debit.IsBaixa, debit.expectedDate)
+
+      return matchesUnit && matchesSearch && matchesStatus;
     });
 
     setFilterDebit(filtered);
@@ -217,19 +239,11 @@ export default function ListDebits() {
     const selectedStatus = e.target.value;
     setStatus(selectedStatus)
 
-    const checkStatus = () => {
-      if(status == "pago") {
-        return true
-      } else {
-        return null
-      }
-    }
-
     const filtered = debits.filter((debit) => {
       const matchesUnit = unitFilter === 'Todos' || debit.unitId === unitFilter;
       const matchesSearch = debit.description.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesStatus = status === 'todos' || checkStatus()
-      return matchesUnit && matchesSearch;
+      const matchesStatus = selectedStatus === 'Todos' || selectedStatus === checkStatus(debit.IsBaixa, debit.expectedDate)
+      return matchesUnit && matchesSearch && matchesStatus;
     });
 
     setFilterDebit(filtered);
@@ -322,6 +336,7 @@ export default function ListDebits() {
           <select className="w-full max-w-xs px-3 py-2 border rounded-md" onChange={handleSelectChangeStatus}>
             <option value="Todos">Todos</option>
             <option value="pago">Pago</option>
+            <option value="vencido">Vencido</option>
             <option value="pendente">Pendente</option>
           </select>
         </div>
@@ -385,6 +400,12 @@ export default function ListDebits() {
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
                   Descrição
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Unidade
                 </th>
                 <th
                   scope="col"
@@ -459,6 +480,9 @@ export default function ListDebits() {
                     {unit.description}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {unit.unit.Description}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   {new Intl.NumberFormat('pt-BR', {
                       style: 'currency',
                       currency: 'BRL'
@@ -474,7 +498,10 @@ export default function ListDebits() {
                     {format(new Date(unit.expectedDate), 'dd/MM/yyyy', { locale: ptBR })}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {format(new Date(unit.baixaDate), 'dd/MM/yyyy', { locale: ptBR })}
+                    {unit.baixaDate ?
+                      format(toZonedTime(new Date(unit.baixaDate), timeZone), 'dd/MM/yyyy', { locale: ptBR })
+                      :'N/A'
+                    }
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {unit.IsBaixa ? "Pago" : "Pendente"}
@@ -485,12 +512,16 @@ export default function ListDebits() {
                     </Link>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    {unit.IsBaixa === true ?
+                      '-'
+                    :
                     <button 
                       className="text-red-600 hover:text-red-900"
                       onClick={() => handleDelete(unit.id)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
+                    }
                   </td>
                   {checkedItems.length !== 0 &&
                     checkedItems.some((item) => item.id === unit.id) && ( // Verifica se o ID está nos checkedItems
