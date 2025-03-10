@@ -16,8 +16,8 @@ export default async function PrivateLayout({ children }: PrivateLayoutProps) {
   }
 
   return (
-    <div>
+    <>
       {children}
-    </div>
+    </>
   )
 }

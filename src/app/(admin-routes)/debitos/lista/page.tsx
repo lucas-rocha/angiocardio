@@ -298,7 +298,7 @@ export default function ListDebits() {
 
   return (
     <div className="p-6 flex-1">
-       <h1 className="text-xl font-semibold text-gray-900 mb-6">Histórico de Despesas</h1>
+      <h1 className="text-xl font-semibold text-gray-900 mb-6">Histórico de Despesas</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
@@ -329,7 +329,7 @@ export default function ListDebits() {
           </select>
         </div>
         <div>
-        <label className="block text-sm mb-1">Status</label>
+          <label className="block text-sm mb-1">Status</label>
           <select className="w-full max-w-xs px-3 py-2 border rounded-md" onChange={handleSelectChangeStatus}>
             <option value="Todos">Todos</option>
             <option value="pago">Pago</option>
