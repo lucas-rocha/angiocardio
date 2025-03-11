@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { Pencil, Trash2, Search, Clipboard, PlusCircle } from 'lucide-react'
 import Link from 'next/link'
 import Swal from 'sweetalert2';
+import { useIsUser } from '@/hooks/useIsUser';
 
 
 interface Unit {
@@ -15,6 +16,7 @@ interface Unit {
 export default function ListUnit() {
   const [searchQuery, setSearchQuery] = useState('')
   const [units, setUnits] = useState<Unit[]>([])
+  const isUser = useIsUser()
 
   const handleError = () => {
     Swal.fire({
@@ -76,6 +78,7 @@ export default function ListUnit() {
   const filteredUnits = units.filter(unit => 
     unit.Description.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
 
   return (
     <div className="p-6 flex-1">
@@ -140,18 +143,22 @@ export default function ListUnit() {
                 >
                   Unidade
                 </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Editar
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Excluir
-                </th>
+                {!isUser && (
+                <>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Editar
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Excluir
+                  </th>
+                </>
+                )}
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -166,21 +173,25 @@ export default function ListUnit() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {unit.Description}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button className="text-blue-600 hover:text-blue-900">
-                    <Link href={`/unidades/editar?id=${unit.id}`}>
-                      <Pencil className="h-4 w-4" />
-                    </Link>
-                    </button>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button 
-                      className="text-red-600 hover:text-red-900"
-                      onClick={() => handleDelete(unit.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </td>
+                  {!isUser && (
+                    <>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button className="text-blue-600 hover:text-blue-900">
+                        <Link href={`/unidades/editar?id=${unit.id}`}>
+                          <Pencil className="h-4 w-4" />
+                        </Link>
+                        </button>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button 
+                          className="text-red-600 hover:text-red-900"
+                          onClick={() => handleDelete(unit.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </td>
+                    </>
+                  )}
                 </tr>
               ))}
             </tbody>

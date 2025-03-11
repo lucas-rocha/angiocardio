@@ -1,5 +1,6 @@
 'use client'
 
+import { useIsUser } from '@/hooks/useIsUser'
 import { useEffect, useState } from 'react'
 
 interface Unit {
@@ -82,16 +83,18 @@ export default function RegisterUnit() {
               value={newUnit}
               onChange={(e) => setNewUnit(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              disabled={useIsUser()}
             />
           </div>
-        </div>
-        <div className="mt-4 flex justify-end">
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          >
-            Salvar
-          </button>
+          <div className="mt-4 flex">
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              disabled={useIsUser()}
+            >
+              Salvar
+            </button>
+          </div>
         </div>
       </form>
 

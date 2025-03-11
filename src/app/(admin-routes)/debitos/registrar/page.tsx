@@ -5,6 +5,7 @@ import { CalendarIcon, Clipboard, PlusCircle } from 'lucide-react'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import CurrencyInput from '@/components/CurrencyInput'
+import { useIsUser } from '@/hooks/useIsUser'
 
 type DebitEntry = {
   id: string;
@@ -35,6 +36,8 @@ export default function DebitosRegistro() {
   const [dueDate, setDueDate] = useState('')
   const [units, setUnits] = useState<Unit[]>([])
   // const [isFirstType, setIsFirstType] = useState(true)
+
+  const isUser = useIsUser()
 
   useEffect(() => {
     async function fetchUnits() {
@@ -130,7 +133,7 @@ export default function DebitosRegistro() {
         <div className="space-y-4">
           <div>
             <label className="block text-sm mb-1">Selecione a unidade</label>
-            <select className="w-full max-w-xs px-3 py-2 border rounded-md" onChange={handleSelectChange}>
+            <select className="w-full max-w-xs px-3 py-2 border rounded-md" onChange={handleSelectChange} disabled={isUser}>
               {units.map(unit => (
                 <option key={unit.id} value={unit.id}>{unit.Description}</option>
               ))}
@@ -145,6 +148,7 @@ export default function DebitosRegistro() {
                 className="w-full px-3 py-2 border rounded-md"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
+                disabled={isUser}
               />
             </div>
             <div>
@@ -171,6 +175,7 @@ export default function DebitosRegistro() {
                   className="w-full px-3 py-2 border rounded-md"
                   value={issueDate}
                   onChange={(e) => setIssueDate(e.target.value)}
+                  disabled={isUser}
                 />
                 <CalendarIcon className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
               </div>
@@ -187,6 +192,7 @@ export default function DebitosRegistro() {
                     
                     SetExpectedDate(e.target.value)
                   }}
+                  disabled={isUser}
                 />
                 <CalendarIcon className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
               </div>
@@ -199,6 +205,7 @@ export default function DebitosRegistro() {
                   className="w-full px-3 py-2 border rounded-md"
                   value={expectedDate}
                   onChange={(e) => SetExpectedDate(e.target.value)}
+                  disabled={isUser}
                 />
                 <CalendarIcon className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
               </div>
@@ -209,6 +216,7 @@ export default function DebitosRegistro() {
         <button
           type="submit"
           className="px-4 py-2 bg-blue-900 text-white rounded-md hover:bg-blue-800"
+          disabled={isUser}
         >
           Salvar
         </button>
