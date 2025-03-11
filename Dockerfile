@@ -16,7 +16,7 @@ COPY . .
 # Gere os tipos do Prisma
 RUN npx prisma generate
 
-RUN npm run build
+RUN npm run dev
 
 # Exponha a porta 3000
 EXPOSE 3000
