@@ -188,18 +188,25 @@ export default function ListDebits() {
   };
 
   const checkStatus = (statusBaixa: boolean, expectedDate: string) => {
-    if(statusBaixa === true) {
-      return 'pago'
+    if (statusBaixa === true) {
+      return 'pago';
     }
-
-    if(statusBaixa === false) {
-      const parseExpectedDate = new Date(expectedDate)
-      console.log(parseExpectedDate < new Date())
-      if(parseExpectedDate < new Date()) {
-        return 'vencido'
+  
+    if (statusBaixa === false) {
+      const parseExpectedDate = new Date(expectedDate);
+      const today = new Date();
+  
+      // Criar novas datas com horas, minutos, segundos e milissegundos zerados
+      const parsedDateOnly = new Date(parseExpectedDate.getFullYear(), parseExpectedDate.getMonth(), parseExpectedDate.getDate());
+      const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  
+      console.log(parsedDateOnly < todayOnly);
+  
+      if (parsedDateOnly < todayOnly) {
+        return 'vencido';
       }
-
-      return 'pendente'
+  
+      return 'pendente';
     }
   }
 

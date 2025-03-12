@@ -193,18 +193,25 @@ export default function ListDebits() {
   };
 
   const checkStatus = (statusBaixa: boolean, expectedDate: string) => {
-    if(statusBaixa === true) {
-      return 'pago'
+    if (statusBaixa === true) {
+      return 'recebido';
     }
-
-    if(statusBaixa === false) {
-      const parseExpectedDate = new Date(expectedDate)
-      console.log(parseExpectedDate < new Date())
-      if(parseExpectedDate < new Date()) {
-        return 'vencido'
+  
+    if (statusBaixa === false) {
+      const parseExpectedDate = new Date(expectedDate);
+      const today = new Date();
+  
+      // Criar novas datas com horas, minutos, segundos e milissegundos zerados
+      const parsedDateOnly = new Date(parseExpectedDate.getFullYear(), parseExpectedDate.getMonth(), parseExpectedDate.getDate());
+      const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  
+      console.log(parsedDateOnly < todayOnly);
+  
+      if (parsedDateOnly < todayOnly) {
+        return 'vencido';
       }
-
-      return 'pendente'
+  
+      return 'pendente';
     }
   }
 
@@ -308,7 +315,7 @@ export default function ListDebits() {
           <label className="block text-sm mb-1">Status</label>
           <select className="w-full max-w-xs px-3 py-2 border rounded-md" onChange={handleSelectChangeStatus}>
             <option value="Todos">Todos</option>
-            <option value="pago">Pago</option>
+            <option value="recebido">Recebido</option>
             <option value="vencido">Vencido</option>
             <option value="pendente">Pendente</option>
           </select>

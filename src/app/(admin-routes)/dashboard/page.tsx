@@ -300,9 +300,6 @@ export default function Dashboard() {
     // Transforme os dados necessários para o relatório
     const transformedDebitData = transformData(filteredDebits);
     const transformedCreditData = transformData(filteredCredits);
-
-    console.log(transformedDebitData)
-    console.log(transformedCreditData)
   
     // Monte o payload com dois objetos
     const payload = {
@@ -332,31 +329,39 @@ export default function Dashboard() {
   const handleDateChange = () => {
     const start = new Date(startDate);
     const end = new Date(endDate);
-
-    console.log("MUDIY")
-
+  
     const filteredDebits = debits.filter((debit) => {
+      if (!debit.baixaDate) return false; // Lidar com casos onde baixaDate é nulo ou indefinido
       const baixaDate = new Date(debit.baixaDate);
+  
+      const baixaDateOnly = new Date(baixaDate.getFullYear(), baixaDate.getMonth(), baixaDate.getDate());
+      const startOnly = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+      const endOnly = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+  
       return (
-        baixaDate >= start &&
-        baixaDate <= end &&
+        baixaDateOnly >= startOnly &&
+        baixaDateOnly <= endOnly &&
         (unitFilter === "Todos" || debit.unitId === unitFilter) &&
         debit.IsBaixa === true
       );
     });
-
-    console.log(filteredDebits)
-
+  
     const filteredCredits = credits.filter((credit) => {
+      if (!credit.baixaDate) return false; // Lidar com casos onde baixaDate é nulo ou indefinido
       const baixaDate = new Date(credit.baixaDate);
+  
+      const baixaDateOnly = new Date(baixaDate.getFullYear(), baixaDate.getMonth(), baixaDate.getDate());
+      const startOnly = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+      const endOnly = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+  
       return (
-        baixaDate >= start &&
-        baixaDate <= end &&
+        baixaDateOnly >= startOnly &&
+        baixaDateOnly <= endOnly &&
         (unitFilter === "Todos" || credit.unitId === unitFilter) &&
         credit.IsBaixa === true
       );
     });
-
+  
     setFilteredDebits(filteredDebits);
     setFilteredCredits(filteredCredits);
   };
@@ -390,7 +395,10 @@ export default function Dashboard() {
               id="startDate"
               value={startDate}
               className="w-full px-3 py-2 border rounded-md"
-              onChange={(e) => setStartDate(e.target.value)}
+              onChange={(e) => {
+                console.log(e.target.value)
+                setStartDate(e.target.value)
+              }}
             />
           </div>
 

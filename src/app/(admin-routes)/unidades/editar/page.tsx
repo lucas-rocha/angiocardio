@@ -101,20 +101,6 @@ export default function EditUnit() {
               required
             />
           </div>
-
-          <div>
-            <label htmlFor="cnp" className="block text-sm font-medium text-gray-700">
-              CNP
-            </label>
-            <input
-              type="text"
-              id="cnp"
-              value={cnpj}
-              onChange={(e) => setCnpj(e.target.value)}
-              className="mt-1 block w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              required
-            />
-          </div>
         </div>
 
         <div className="mt-6">
