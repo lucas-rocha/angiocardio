@@ -229,6 +229,7 @@ export default function Dashboard() {
 
     setFilteredDebits(filteredDebits);
     setFilteredCredits(filteredCredits)
+    console.log(filteredDebits)
   } 
 
   const handleSelectMonthChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -289,6 +290,7 @@ export default function Dashboard() {
     });
   
     // Atualiza os estados dos débitos e créditos filtrados
+    
     setFilteredDebits(filteredDebits);
     setFilteredCredits(filteredCredits);
   };

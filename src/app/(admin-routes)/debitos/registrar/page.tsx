@@ -161,7 +161,7 @@ export default function DebitosRegistro() {
                   value={valueToPay}
                   onChange={handleInputChange}
                 /> */}
-                <CurrencyInput value={valueToPay} onChange={(value) => setValueToPay(value)} />
+                <CurrencyInput value={valueToPay} onChange={(value) => setValueToPay(value)} disabled={isUser} />
               </div>
             </div>
           </div>

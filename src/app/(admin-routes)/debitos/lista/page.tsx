@@ -9,6 +9,7 @@ import Link from 'next/link'
 import transformData from '@/utils/dataToData'
 import EditData from '@/components/EditData'
 import Swal from 'sweetalert2'
+import { useIsUser } from '@/hooks/useIsUser'
 
 
 type DebitEntry = {
@@ -49,6 +50,7 @@ export default function ListDebits() {
   const [units, setUnits] = useState<Unit[]>([])
   const [unitFilter, setUnitFilter] = useState('Todos');
   const [status, setStatus] = useState('Todos')
+  const isUser = useIsUser()
 
   const timeZone = 'America/Sao_Paulo'; 
 
@@ -83,8 +85,9 @@ export default function ListDebits() {
         const response = await fetch('/api/debitos');
         const data = await response.json();
         
-        setDebits(data);
+        setDebits(data)
         setFilterDebit(data)
+        console.log(data)
       } catch (error) {
         console.error('Error fetching units:', error);
       }
@@ -440,18 +443,22 @@ export default function ListDebits() {
                 >
                   Status
                 </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Editar
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Excluir
-                </th>
+                {!isUser && (
+                  <>  
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Editar
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Excluir
+                    </th>
+                  </>
+                )}
                 {checkedItems.length !== 0 && (
                   <th
                   scope="col"
@@ -503,23 +510,27 @@ export default function ListDebits() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {checkStatus(unit.IsBaixa, unit.expectedDate)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <Link href={`/debitos/editar?id=${unit.id}`}>
-                      <Pencil className="h-4 w-4" />
-                    </Link>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    {unit.IsBaixa === true ?
-                      '-'
-                    :
-                    <button 
-                      className="text-red-600 hover:text-red-900"
-                      onClick={() => handleDelete(unit.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                    }
-                  </td>
+                  {!isUser && (
+                    <>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <Link href={`/debitos/editar?id=${unit.id}`}>
+                          <Pencil className="h-4 w-4" />
+                        </Link>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        {unit.IsBaixa === true ?
+                          '-'
+                          :
+                        <button 
+                        className="text-red-600 hover:text-red-900"
+                        onClick={() => handleDelete(unit.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                        }
+                      </td>
+                    </>
+                  )}
                   {checkedItems.length !== 0 &&
                     checkedItems.some((item) => item.id === unit.id) && ( // Verifica se o ID está nos checkedItems
                       <EditData

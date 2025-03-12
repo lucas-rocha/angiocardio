@@ -48,21 +48,21 @@ const getBaixaMonthYear = () => {
   const addPage = () => {
     const page = pdfDoc.addPage([pageWidth, pageHeight]);
     page.drawImage(logoImage, { 
-      x: 50, 
-      y: 520, 
+      x: 30, 
+      y: 550, 
       width: logoDims.width, 
       height: logoDims.height 
     });
 
     // Adiciona data dinâmica
-    const baixaMonthYear = getBaixaMonthYear();
-    page.drawText(baixaMonthYear, { 
-      x: 700, 
-      y: 550, 
-      size: 14, 
-      font: boldFont, 
-      color: rgb(0, 0, 0) 
-    });
+    // const baixaMonthYear = getBaixaMonthYear();
+    // page.drawText(baixaMonthYear, { 
+    //   x: 700, 
+    //   y: 550, 
+    //   size: 14, 
+    //   font: boldFont, 
+    //   color: rgb(0, 0, 0) 
+    // });
 
     drawPageNumber(page);
     return page;
@@ -70,8 +70,9 @@ const getBaixaMonthYear = () => {
 
   const drawPageNumber = (page: any) => {
     const fontSize = 10;
-    page.drawText(`Página ${pageCount}`, {
-      x: pageWidth - 100, // Posição à direita
+    const actualDate = new Date()
+    page.drawText(`${actualDate.getDate()}/${(actualDate.getMonth() + 1)}/${actualDate.getUTCFullYear()} às ${actualDate.getHours()}:${actualDate.getMinutes()}                  Página ${pageCount}`, {
+      x: pageWidth - 200, // Posição à direita
       y: 30, // Posição para o rodapé
       size: fontSize,
       font: font,
