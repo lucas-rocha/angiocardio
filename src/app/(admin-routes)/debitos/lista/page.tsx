@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Pencil, Trash2, Search, Clipboard, PlusCircle, CalendarIcon } from 'lucide-react'
-import { format } from 'date-fns'
-import { toZonedTime } from 'date-fns-tz'
+import { format, toZonedTime } from 'date-fns-tz';
 import { ptBR } from 'date-fns/locale'
 import Link from 'next/link'
 import transformData from '@/utils/dataToData'
@@ -87,7 +86,7 @@ export default function ListDebits() {
         
         setDebits(data)
         setFilterDebit(data)
-        console.log(data)
+        console.log(new Date(data[1].baixaDate))
       } catch (error) {
         console.error('Error fetching units:', error);
       }
@@ -493,17 +492,17 @@ export default function ListDebits() {
                     }).format(isNaN(Number(unit.valueToPay)) ? 0 : Number(unit.valueToPay))}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {format(new Date(unit.issueDate), 'dd/MM/yyyy', { locale: ptBR })}
+                    {format(toZonedTime(unit.issueDate, 'UTC'), 'dd/MM/yyyy', { locale: ptBR })}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {format(new Date(unit.dueDate), 'dd/MM/yyyy', { locale: ptBR })}
+                    {format(toZonedTime(unit.dueDate, 'UTC'), 'dd/MM/yyyy', { locale: ptBR })}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {format(new Date(unit.expectedDate), 'dd/MM/yyyy', { locale: ptBR })}
+                    {format(toZonedTime(unit.expectedDate, 'UTC'), 'dd/MM/yyyy', { locale: ptBR })}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {unit.baixaDate ?
-                      format(toZonedTime(new Date(unit.baixaDate), timeZone), 'dd/MM/yyyy', { locale: ptBR })
+                      format(toZonedTime(unit.baixaDate, 'UTC'), 'dd/MM/yyyy', { locale: ptBR })
                       :'N/A'
                     }
                   </td>

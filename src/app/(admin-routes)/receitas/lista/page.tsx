@@ -470,17 +470,17 @@ export default function ListDebits() {
                     }).format(isNaN(Number(unit.valueToPay)) ? 0 : Number(unit.valueToPay))}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {format(new Date(unit.issueDate), 'dd/MM/yyyy', { locale: ptBR })}
+                    {format(toZonedTime(unit.issueDate, 'UTC'), 'dd/MM/yyyy', { locale: ptBR })}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {format(new Date(unit.dueDate), 'dd/MM/yyyy', { locale: ptBR })}
+                    {format(toZonedTime(unit.dueDate, 'UTC'), 'dd/MM/yyyy', { locale: ptBR })}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {format(new Date(unit.expectedDate), 'dd/MM/yyyy', { locale: ptBR })}
+                    {format(toZonedTime(unit.expectedDate, 'UTC'), 'dd/MM/yyyy', { locale: ptBR })}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {unit.baixaDate ?
-                      format(toZonedTime(new Date(unit.baixaDate), timeZone), 'dd/MM/yyyy', { locale: ptBR })
+                      format(toZonedTime(new Date(unit.baixaDate), 'UTC'), 'dd/MM/yyyy', { locale: ptBR })
                       :'N/A'
                     }
                   </td>
