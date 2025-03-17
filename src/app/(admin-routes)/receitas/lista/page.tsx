@@ -194,7 +194,7 @@ export default function ListDebits() {
 
   const checkStatus = (statusBaixa: boolean, expectedDate: string) => {
     if (statusBaixa === true) {
-      return 'recebido';
+      return 'pago';
     }
   
     if (statusBaixa === false) {
@@ -202,10 +202,8 @@ export default function ListDebits() {
       const today = new Date();
   
       // Criar novas datas com horas, minutos, segundos e milissegundos zerados
-      const parsedDateOnly = new Date(parseExpectedDate.getFullYear(), parseExpectedDate.getMonth(), parseExpectedDate.getDate());
+      const parsedDateOnly = new Date(parseExpectedDate.getFullYear(), parseExpectedDate.getMonth(), parseExpectedDate.getDate() + 1);
       const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  
-      console.log(parsedDateOnly < todayOnly);
   
       if (parsedDateOnly < todayOnly) {
         return 'vencido';
