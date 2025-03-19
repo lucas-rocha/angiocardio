@@ -50,6 +50,7 @@ export default function EditDebit() {
   const [expectedDate, SetExpectedDate] = useState<string>('')
   const [dueDate, setDueDate] = useState('')
   const [isPago, setIsPago] = useState(false)
+  const [baixaDate, setBaixaDate] = useState('')
   const [newDateBaixa, setNewDateBaixa] = useState('')
 
   const handleSuccess = () => {
@@ -80,18 +81,23 @@ export default function EditDebit() {
           const formattedDate = format(parsedDate, 'yyyy-MM-dd')
           SetExpectedDate(formattedDate)
 
-          const parseIssueDate = format(new Date(data.issueDate), 'dd/MM/yyyy', { locale: ptBR })
-          const parsedIssueDate = parse(parseIssueDate, 'dd/MM/yyyy', new Date())
+          const parseIssueDate = new Date(data.issueDate)
+          const parsedIssueDate = new Date(parseIssueDate.getTime() + parseIssueDate.getTimezoneOffset() * 60000)
           const formattedIssueDate = format(parsedIssueDate, 'yyyy-MM-dd')
           setIssueDate(formattedIssueDate)
-          console.log(formattedIssueDate)
 
-          const parseDueDate = format(new Date(data.dueDate), 'dd/MM/yyyy', { locale: ptBR })
-          const parsedDueDate = parse(parseDueDate, 'dd/MM/yyyy', new Date())
+          const parseDueDate = new Date(data.dueDate)
+          const parsedDueDate = new Date(parseDueDate.getTime() + parseDueDate.getTimezoneOffset() * 60000)
           const formattedDueDate = format(parsedDueDate, 'yyyy-MM-dd')
           setDueDate(formattedDueDate)
 
+
           setIsPago(data.IsBaixa)
+
+          const parseBaixaDate = new Date(data.baixaDate)
+          const parsedBaixaDate = new Date(parseBaixaDate.getTime() + parseBaixaDate.getTimezoneOffset() * 60000)
+          const formattedBaixaDate = format(parsedBaixaDate, 'dd/MM/yyyy')
+          setBaixaDate(formattedBaixaDate)
         } else {
           console.error('Erro ao buscar unidade.')
         }

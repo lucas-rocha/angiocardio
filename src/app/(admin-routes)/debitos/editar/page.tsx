@@ -79,25 +79,24 @@ export default function EditDebit() {
           setValueToPay(data.valueToPay)
           
           const parseExpectedDate = new Date(data.expectedDate)
-          console.log(parseExpectedDate)
           const parsedDate = new Date(parseExpectedDate.getTime() + parseExpectedDate.getTimezoneOffset() * 60000); 
           const formattedDate = format(parsedDate, 'yyyy-MM-dd')
           SetExpectedDate(formattedDate)
 
-          const parseIssueDate = format(new Date(data.issueDate), 'dd/MM/yyyy', { locale: ptBR })
-          const parsedIssueDate = parse(parseIssueDate, 'dd/MM/yyyy', new Date())
+          const parseIssueDate = new Date(data.issueDate)
+          const parsedIssueDate = new Date(parseIssueDate.getTime() + parseIssueDate.getTimezoneOffset() * 60000)
           const formattedIssueDate = format(parsedIssueDate, 'yyyy-MM-dd')
           setIssueDate(formattedIssueDate)
 
-          const parseDueDate = format(new Date(data.dueDate), 'dd/MM/yyyy', { locale: ptBR })
-          const parsedDueDate = parse(parseDueDate, 'dd/MM/yyyy', new Date())
+          const parseDueDate = new Date(data.dueDate)
+          const parsedDueDate = new Date(parseDueDate.getTime() + parseDueDate.getTimezoneOffset() * 60000)
           const formattedDueDate = format(parsedDueDate, 'yyyy-MM-dd')
           setDueDate(formattedDueDate)
 
           setIsPago(data.IsBaixa)
 
-          const parseBaixaDate = format(new Date(data.baixaDate), 'dd/MM/yyyy', { locale: ptBR })
-          const parsedBaixaDate = parse(parseBaixaDate, 'dd/MM/yyyy', new Date())
+          const parseBaixaDate = new Date(data.baixaDate)
+          const parsedBaixaDate = new Date(parseBaixaDate.getTime() + parseBaixaDate.getTimezoneOffset() * 60000)
           const formattedBaixaDate = format(parsedBaixaDate, 'dd/MM/yyyy')
           setBaixaDate(formattedBaixaDate)
         } else {
