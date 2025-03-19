@@ -110,7 +110,7 @@ export default function CreditosRegistro() {
 
   return (
     <div className="p-6 flex-1">
-      <h1 className="text-xl font-medium">Registrar Lançamento de débito</h1>
+      <h1 className="text-xl font-medium">Adicionar Receita</h1>
       
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-4">
@@ -174,7 +174,7 @@ export default function CreditosRegistro() {
               </div>
             </div>
             <div>
-              <label className="block text-sm mb-1">Data prevista de baixa</label>
+              <label className="block text-sm mb-1">Data prevista de recebimento</label>
               <div className="relative">
                 <input
                   type="date"
@@ -200,7 +200,7 @@ export default function CreditosRegistro() {
 
 
       <div className="mt-6">
-        <h2 className="text-sm font-medium text-gray-700 mb-4">Lançamentos atuais</h2>
+        <h2 className="text-sm font-medium text-gray-700 mb-4">Últimas receitas adicionadas</h2>
         <div className="border rounded-lg overflow-hidden">
         {debits.length === 0 ? (
           <div className="flex justify-center items-center py-10 text-center">

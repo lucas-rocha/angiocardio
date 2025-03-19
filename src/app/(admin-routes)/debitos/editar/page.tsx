@@ -182,7 +182,7 @@ export default function EditDebit() {
         Voltar
       </button>
 
-      <h1 className="text-xl font-semibold text-gray-900 mb-6">Editar lançamento de débito</h1>
+      <h1 className="text-xl font-semibold text-gray-900 mb-6">Editar lançamento de despesa</h1>
 
       <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="space-y-6">
         {isPago && (

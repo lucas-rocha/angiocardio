@@ -43,9 +43,6 @@ export default function ProfitDisplay({ debit, credit, selectMonth, selectYear }
             R$ {profit.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}  
           </div>
         </div>
-        <div className="text-white text-sm">
-          {selectMonth}/{selectYear}
-          </div>
       </div>
     </div>
   )

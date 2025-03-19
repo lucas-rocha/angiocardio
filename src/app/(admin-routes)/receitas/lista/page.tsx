@@ -281,12 +281,12 @@ export default function ListDebits() {
 
   return (
     <div className="p-6 flex-1">
-      <h1 className="text-xl font-semibold text-gray-900 mb-6">Lista de todos os lançamentos</h1>
+      <h1 className="text-xl font-semibold text-gray-900 mb-6">Histórico de Receitas</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label htmlFor="unit-search" className="block text-sm font-medium text-gray-700 mb-1">
-            Procurar por receita
+            Procurar receita pela descrição
           </label>
           <div className="relative">
             <input
@@ -412,7 +412,7 @@ export default function ListDebits() {
                   scope="col"
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
-                  Data de Pagamento
+                  data de recebimento
                 </th>
                 <th
                   scope="col"
@@ -420,10 +420,6 @@ export default function ListDebits() {
                 >
                   Status
                 </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                ></th>
                 {!isUser && (
                   <>   
                     <th
