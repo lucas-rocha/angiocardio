@@ -86,7 +86,6 @@ export default function ListDebits() {
         
         setDebits(data)
         setFilterDebit(data)
-        console.log(new Date(data[1].baixaDate))
       } catch (error) {
         console.error('Error fetching units:', error);
       }
