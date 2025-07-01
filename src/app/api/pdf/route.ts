@@ -2,38 +2,8 @@ import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import fs from "fs";
 import path from "path";
 
-// const data = [
-//   ["DESCRIÇÃO", "DATA DE EMISSÃO", "VENCIMENTO", "DATA DE QUITAÇÃO", "VALOR", "STATUS"],
-
-//   ["ISS NOTA NEW MED", "-", "-", "-", "R$ 12.214,00", "Pago"],
-//   ["ISS RETIDO CECOR 2/10", "01/10", "02/10", "03/10", "R$ 4.500,00", "Pendente"],
-//   ["ROBERTO ***", "-", "-", "-", "R$ 9.000,00", "Pago"],
-//   ["TAXA BANCARIA SHILD", "-", "-", "-", "R$ 4.020,00", "Pendente"],
-//   ["ISS TRIMESTRE NEW MED", "-", "-", "-", "R$ 2.400,00", "Pago"],
-
-//   ["CORDIS", "", "", "", "", ""],
-//   ["NF 9301 VALOR 16875,00 VENC 07/10", "05/10", "07/10", "-", "R$ 16.875,00", "Pendente"],
-
-//   ["MICROPORT", "", "", "", "", ""],
-//   ["NF 47213/3 VALOR 23997,00 VENC 10/10", "08/10", "10/10", "-", "R$ 23.997,00", "Pago"],
-//   ["NF 48494/3 VALOR 2000,00", "-", "-", "-", "R$ 2.000,00", "Pendente"],
-
-//   ["LITORAL", "", "", "", "", ""],
-//   ["NF 166977 VALOR 17500,00 *** VENC 15/10", "12/10", "15/10", "-", "R$ 17.500,00", "Pago"],
-//   ["NF 11284 STENTS RECIFE 2/3", "-", "-", "-", "R$ 6.000,00", "Pendente"],
-//   ["NF 20921 VALOR 1400,00 VENC 28/10", "25/10", "28/10", "-", "R$ 1.400,00", "Pendente"],
-//   ["NF 20556 VALOR 2670,00 VENC 04/10", "02/10", "04/10", "-", "R$ 2.670,00", "Pago"],
-//   ["100 TIG DEPOSITO 084.847.508-92", "-", "-", "-", "R$ 3.800,00", "Pago"],
-//   ["100 TIG DEPOSITO 084.847.508-92", "-", "-", "-", "R$ 3.800,00", "Pago"],
-//   ["100 TIG DEPOSITO 084.847.508-92", "-", "-", "-", "R$ 3.800,00", "Pago"],
-
-//   ["NOBRE", "", "", "", "", ""],
-//   ["DEPOSITO EM CONTA", "-", "-", "-", "R$ 20.000,00", "Pago"],
-//   ["TOTAL", "", "", "", "R$ 425.087,50", ""]
-// ];
-
 export async function POST(request: Request) {
-  const data = await request.json();
+  const { data, startDate, endDate, isDebit} = await request.json();
 
   const pdfDoc = await PDFDocument.create();
 
@@ -57,35 +27,88 @@ export async function POST(request: Request) {
     (pageWidth - 40) * 0.15, // 15% para a terceira coluna (VENCIMENTO)
     (pageWidth - 40) * 0.15, // 15% para a quarta coluna (DATA DE QUITAÇÃO)
     (pageWidth - 40) * 0.2, // 20% para a quinta coluna (VALOR)
-    (pageWidth - 40) * 0.15  // 15% para a sexta coluna (STATUS)
   ];
   const tableWidth = colWidths.reduce((sum, w) => sum + w, 0); // Largura total da tabela
   const tableStartX = (pageWidth - tableWidth) / 2; // Posição inicial da tabela
   let y = 500; // Coordenada inicial Y
   const rowHeight = 25;
 
-  const addPage = () => {
-    const page = pdfDoc.addPage([pageWidth, pageHeight]);
+  let pageCount = 0;
 
-    // Adicionar logo no canto superior esquerdo
-    page.drawImage(logoImage, {
-      x: 50,
-      y: 520,
-      width: logoDims.width,
-      height: logoDims.height,
-    });
+const addPage = () => {
+  const page = pdfDoc.addPage([pageWidth, pageHeight]);
+  pageCount++;
 
-    // Adicionar texto no canto superior direito
-    page.drawText("set/24", {
-      x: 700,
-      y: 550,
-      size: 14,
-      font: boldFont,
-      color: rgb(0, 0, 0),
-    });
+  // Logo canto superior esquerdo
+  page.drawImage(logoImage, {
+    x: 50,
+    y: 520,
+    width: logoDims.width,
+    height: logoDims.height,
+  });
+  
+  
+  // Título centralizado
+const title = isDebit ? "LISTA DE DÉBITOS" : "LISTA DE RECEITAS";
+const titleFontSize = 14;
+const titleWidth = boldFont.widthOfTextAtSize(title, titleFontSize);
+page.drawText(title, {
+  x: (pageWidth - titleWidth) / 2,
+  y: 530,
+  size: titleFontSize,
+  font: boldFont,
+  color: rgb(0, 0, 0),
+});
 
-    return page;
-  };
+// Subtítulo com o período, se fornecido
+if (startDate && endDate) {
+  const period = `Período: ${new Date(startDate).toLocaleDateString("pt-BR")} até ${new Date(endDate).toLocaleDateString("pt-BR")}`;
+  const periodFontSize = 11;
+  const periodWidth = font.widthOfTextAtSize(period, periodFontSize);
+  page.drawText(period, {
+    x: (pageWidth - periodWidth) / 2,
+    y: 515,
+    size: periodFontSize,
+    font: font,
+    color: rgb(0.3, 0.3, 0.3),
+  });
+}
+
+
+  // Data/hora atual formatada
+  const now = new Date();
+  const formatDate = now.toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  const footerText = `Emitido em ${formatDate}`;
+  const pageNumberText = `Página ${pageCount}`;
+
+  // Texto no rodapé (esquerda)
+  page.drawText(footerText, {
+    x: 50,
+    y: 30,
+    size: 10,
+    font,
+    color: rgb(0.3, 0.3, 0.3),
+  });
+
+  // Texto no rodapé (direita)
+  page.drawText(pageNumberText, {
+    x: pageWidth - 100,
+    y: 30,
+    size: 10,
+    font,
+    color: rgb(0.3, 0.3, 0.3),
+  });
+
+  return page;
+};
+
 
   // Adiciona a primeira página
   let page = addPage();
@@ -126,11 +149,11 @@ export async function POST(request: Request) {
   const drawTable = () => {
     // Desenha a tabela
     data.forEach((row: any, index: any) => {
-      const [desc, emission, due, paymentDate, value, status] = row; // Novo valor aqui
+      const [desc, emission, due, paymentDate, value] = row; // Novo valor aqui
   
-      const isBold = ["DESCRIÇÃO", "DATA DE EMISSÃO", "VENCIMENTO", "DATA DE QUITAÇÃO", "VALOR", "STATUS", "TOTAL"].includes(
+      const isBold = ["DESCRIÇÃO", "DATA DE EMISSÃO", "VENCIMENTO", "DATA DE QUITAÇÃO", "VALOR", "TOTAL"].includes(
         desc.trim().toUpperCase()
-      ) || (index > 0 && !emission && !due && !paymentDate && !value && !status); // Linha de unidade
+      ) || (index > 0 && !emission && !due && !paymentDate && !value); // Linha de unidade
   
       const currentFont = isBold ? boldFont : font;
   
@@ -141,7 +164,7 @@ export async function POST(request: Request) {
       }
   
       // Desenhar células
-      const columns = [desc, emission, due, paymentDate, value, status]; // Adicionado paymentDate aqui
+      const columns = [desc, emission, due, paymentDate, value]; // Adicionado paymentDate aqui
       let x = tableStartX;
   
       columns.forEach((text, colIndex) => {

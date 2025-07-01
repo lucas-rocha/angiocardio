@@ -23,7 +23,7 @@ const transformData = (originalData: DebitEntry[]): string[][] => {
   const result = originalData.reduce((acc: any, item, index) => {
       // Adiciona a linha de cabeçalho, caso ainda não tenha sido adicionada
       if (index === 0) {
-          acc.push(["DESCRIÇÃO", "DATA DE EMISSÃO", "VENCIMENTO", "DATA DE BAIXA", "VALOR", "STATUS"]);
+          acc.push(["DESCRIÇÃO", "DATA DE EMISSÃO", "VENCIMENTO", "DATA DE BAIXA", "VALOR"]);
       }
 
       // Formata as datas
@@ -53,8 +53,7 @@ const transformData = (originalData: DebitEntry[]): string[][] => {
           issueDate, 
           dueDate,
           baixaDate, 
-          valueFormatted, 
-          status
+          valueFormatted
       ]);
 
       return acc;

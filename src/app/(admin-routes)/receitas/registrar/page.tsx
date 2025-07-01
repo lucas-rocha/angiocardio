@@ -98,6 +98,13 @@ export default function CreditosRegistro() {
       if (response.ok) {
         const data = await response.json();
         setDebits((prevDebits) => [...prevDebits, data]);
+
+        setDescription('')
+        setValueToPay(0)
+        setSelectedUnit('')
+        setIssueDate('')
+        SetExpectedDate('')
+        setDueDate('')
       }
     } catch (error) {
       console.log(error)

@@ -1,9 +1,10 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import fs from "fs";
 import path from "path";
+import { format, formatDate } from "date-fns";
 
 export async function POST(request: Request) {
-  const { debit, credit } = await request.json();
+  const { debit, credit, startDate, endDate } = await request.json();
   const pdfDoc = await PDFDocument.create();
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
   const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
@@ -20,8 +21,7 @@ export async function POST(request: Request) {
     (pageWidth - 40) * 0.15,
     (pageWidth - 40) * 0.15,
     (pageWidth - 40) * 0.15,
-    (pageWidth - 40) * 0.2,
-    (pageWidth - 40) * 0.15,
+    (pageWidth - 40) * 0.2
   ];
   const tableWidth = colWidths.reduce((sum, w) => sum + w, 0);
   const tableStartX = (pageWidth - tableWidth) / 2;
@@ -54,32 +54,40 @@ const getBaixaMonthYear = () => {
       height: logoDims.height 
     });
 
-    // Adiciona data dinâmica
-    // const baixaMonthYear = getBaixaMonthYear();
-    // page.drawText(baixaMonthYear, { 
-    //   x: 700, 
-    //   y: 550, 
-    //   size: 14, 
-    //   font: boldFont, 
-    //   color: rgb(0, 0, 0) 
-    // });
+    if(startDate != null && endDate != null) {
+      const periodoTexto = `Período: ${format(new Date(startDate), 'dd/MM/yyyy')} até ${format(new Date(endDate), 'dd/MM/yyyy')}`;
+      page.drawText(periodoTexto, {
+        x: logoDims.width + 50,
+        y: 550,
+        size: 12,
+        font: boldFont,
+        color: rgb(0.3, 0.3, 0.3)
+      });
+    }
 
-    drawPageNumber(page);
     return page;
   };
 
-  const drawPageNumber = (page: any) => {
-    const fontSize = 10;
-    const actualDate = new Date()
-    page.drawText(`${actualDate.getDate()}/${(actualDate.getMonth() + 1)}/${actualDate.getUTCFullYear()} às ${actualDate.getHours()}:${actualDate.getMinutes()}                  Página ${pageCount}`, {
-      x: pageWidth - 200, // Posição à direita
-      y: 30, // Posição para o rodapé
-      size: fontSize,
-      font: font,
-      color: rgb(0, 0, 0),
-    });
-    pageCount++; // Incrementa o contador
-  };
+const drawPageNumber = (page: any) => {
+  const fontSize = 10;
+  const actualDate = new Date();
+
+  const dateText = `Emitido em ${format(actualDate, "dd/MM/yyyy 'às' HH:mm")}`;
+  const pageText = `Página ${pageCount}`;
+  const combinedText = `${dateText}  •  ${pageText}`;
+
+  page.drawText(combinedText, {
+    x: pageWidth - 50 - font.widthOfTextAtSize(combinedText, fontSize), // alinhado à direita com margem
+    y: 30, // posição no rodapé
+    size: fontSize,
+    font: font,
+    color: rgb(0.3, 0.3, 0.3),
+  });
+
+  pageCount++;
+};
+
+
 
   // const marginBetweenSections = 30; // Margem entre seções
 
@@ -232,7 +240,9 @@ let page = addPage();
 drawTableSection(debit, "DÉBITOS", true);  // Passa `true` para débitos
 drawTableSection(credit, "CRÉDITOS", false); // Passa `false` para créditos
 
-drawLucroOuPrejuizo(page); // Agora desenha o lucro ou prejuízo com os totais calculados
+
+drawLucroOuPrejuizo(page);
+drawPageNumber(page); // Agora sim, abaixo de "Lucro ou Prejuízo"
 
   
   const pdfBytes = await pdfDoc.save();

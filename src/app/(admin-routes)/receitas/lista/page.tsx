@@ -9,6 +9,7 @@ import Link from 'next/link'
 import EditData from '@/components/EditData'
 import Swal from 'sweetalert2'
 import { useIsUser } from '@/hooks/useIsUser'
+import transformData from '@/utils/dataToData'
 
 
 type DebitEntry = {
@@ -25,9 +26,9 @@ type DebitEntry = {
 }
 
 interface Unit {
-  id: number
+  id: string
   Description: string
-  CNP: string
+  CNPJ: string
 }
 
 interface CheckedItem {
@@ -45,9 +46,39 @@ export default function ListDebits() {
   const [unitFilter, setUnitFilter] = useState('Todos');
   const [status, setStatus] = useState('Todos')
   const isUser = useIsUser()
+  const [startDate, setStartDate] = useState<string>(""); 
+  const [endDate, setEndDate] = useState<string>("");
 
 
   const timeZone = 'America/Sao_Paulo'; 
+
+  const applyFilters = () => {
+  const start = startDate ? new Date(startDate) : null;
+  const end = endDate ? new Date(endDate) : null;
+
+  const filtered = debits.filter((debit) => {
+    const matchesUnit = unitFilter === 'Todos' || debit.unitId === unitFilter;
+    const matchesSearch = debit.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = status === 'Todos' || status === checkStatus(debit.IsBaixa, debit.expectedDate);
+
+    const matchesDate =
+      !start || !end
+        ? true
+        : (() => {
+            if (!debit.baixaDate) return false;
+            const baixaDate = new Date(debit.baixaDate);
+            const baixaDateOnly = new Date(baixaDate.getFullYear(), baixaDate.getMonth(), baixaDate.getDate());
+            const startOnly = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+            const endOnly = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+            return baixaDateOnly >= startOnly && baixaDateOnly <= endOnly;
+          })();
+
+    return matchesUnit && matchesSearch && matchesStatus && matchesDate;
+  });
+
+  setFilterDebit(filtered);
+};
+
 
   const handleSuccess = () => {
     Swal.fire({
@@ -60,16 +91,13 @@ export default function ListDebits() {
   };
 
   const handleCheckboxChange = (id: string, dateBaixa: string) => {
-    // setCheckedItems((prev: any) =>
-    //   prev.includes(id)
-    //     ? prev.filter((itemId: string) => itemId !== id)
-    //     : [...prev, id]
-    // );
     setCheckedItems((prev) =>
     prev.some((item) => item.id === id)
       ? prev.filter((item) => item.id !== id) // Remove o item pelo ID
       : [...prev, { id, dateBaixa }] // Adiciona um novo item
     );
+
+    console.log(filterDebit)
     console.log(checkedItems)
   };
 
@@ -82,7 +110,6 @@ export default function ListDebits() {
         setDebits(data);
         setFilterDebit(data)
 
-        console.log(data)
       } catch (error) {
         console.error('Error fetching units:', error);
       }
@@ -125,19 +152,12 @@ export default function ListDebits() {
   };
 
   const handleCheckAll = () => {
-    // if (checkAll) {
-    //   setCheckedItems([]); // Desmarca tudo
-    // } else {
-    //   setCheckedItems(debits.map((unit) => unit.id)); // Marca tudo
-    // }
-    // setCheckAll(!checkAll);
     if (checkAll) {
       setCheckedItems([]); // Desmarca tudo
     } else {
       setCheckedItems(debits.map((unit) => {
         return { id: unit.id, dateBaixa: unit.baixaDate }
       })); // Marca tudo
-      console.log(checkedItems)
     }
     setCheckAll(!checkAll);
   };
@@ -147,7 +167,6 @@ export default function ListDebits() {
       try {
         const response = await fetch('/api/unidades');
         const data = await response.json();
-        console.log(data)
         
         setUnits(data);
       } catch (error) {
@@ -184,7 +203,6 @@ export default function ListDebits() {
       }
   
       const result = await response.json();
-      console.log('Resultado:', result);
       handleSuccess()
       setCheckedItems([])
     } catch (error) {
@@ -213,52 +231,39 @@ export default function ListDebits() {
     }
   }
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-  
-    // Filtra os dados considerando tanto o filtro do select quanto a pesquisa
-    const filtered = debits.filter((debit) => {
-      const matchesUnit = unitFilter === 'Todos' || debit.unitId === unitFilter;
-      const matchesSearch = debit.description.toLowerCase().includes(query.toLowerCase());
-      const matchesStatus = status === 'Todos' || status === checkStatus(debit.IsBaixa, debit.expectedDate)
-      return matchesUnit && matchesSearch && matchesStatus;
-    });
-  
-    setFilterDebit(filtered);
-  };
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  setUnitFilter(e.target.value);
+};
 
-  const handleSelectChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedUnit = e.target.value;
-    setUnitFilter(selectedUnit);
+const handleSelectChangeStatus = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  setStatus(e.target.value);
+};
 
-    // Filtra os dados considerando tanto o filtro do select quanto a pesquisa
-    const filtered = debits.filter((debit) => {
-      const matchesUnit = selectedUnit === 'Todos' || debit.unitId === selectedUnit;
-      const matchesSearch = debit.description.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesStatus = status === 'Todos' || status === checkStatus(debit.IsBaixa, debit.expectedDate)
+const handleSearchChange = (value: string) => {
+  setSearchQuery(value);
+};
 
-      return matchesUnit && matchesSearch && matchesStatus;
-    });
-
-    setFilterDebit(filtered);
-  } 
-
-  const handleSelectChangeStatus = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedStatus = e.target.value;
-    setStatus(selectedStatus)
-
-    const filtered = debits.filter((debit) => {
-      const matchesUnit = unitFilter === 'Todos' || debit.unitId === unitFilter;
-      const matchesSearch = debit.description.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesStatus = selectedStatus === 'Todos' || selectedStatus === checkStatus(debit.IsBaixa, debit.expectedDate)
-      return matchesUnit && matchesSearch && matchesStatus;
-    });
-
-    setFilterDebit(filtered);
-  } 
+const handleDateChange = (start: string, end: string) => {
+  setStartDate(start);
+  setEndDate(end);
+};
 
   const downloadPDF = async () => {
-    const response = await fetch("/api/pdf");
+    const transformedData = {
+      data: transformData(filterDebit),
+      startDate,
+      endDate,
+      isDebit: false,
+    };
+    
+    const response = await fetch("/api/pdf", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(transformedData),
+    });
+
     const blob = await response.blob();
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -273,15 +278,18 @@ export default function ListDebits() {
         item.id === id ? { ...item, dateBaixa: newDate } : item
       )
     );
-
-    console.log(checkedItems)
   };
+
+ 
+useEffect(() => {
+  applyFilters();
+}, [searchQuery, unitFilter, status, startDate, endDate, debits]);
 
   return (
     <div className="p-6 flex-1">
       <h1 className="text-xl font-semibold text-gray-900 mb-6">Histórico de Receitas</h1>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
           <label htmlFor="unit-search" className="block text-sm font-medium text-gray-700 mb-1">
             Procurar receita pela descrição
@@ -292,7 +300,7 @@ export default function ListDebits() {
               id="unit-search"
               placeholder="Procure pela receita"
               value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
+              onChange={(e) => handleSearchChange(e.target.value)}
               className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
             <div className="absolute inset-y-0 right-0 flex items-center pr-3">
@@ -313,10 +321,39 @@ export default function ListDebits() {
           <label className="block text-sm mb-1">Status</label>
           <select className="w-full max-w-xs px-3 py-2 border rounded-md" onChange={handleSelectChangeStatus}>
             <option value="Todos">Todos</option>
+            <option value="pago">Pago</option>
             <option value="recebido">Recebido</option>
             <option value="vencido">Vencido</option>
             <option value="pendente">Pendente</option>
           </select>
+        </div>
+
+        <div className="flex gap-4">
+          <div>
+            <label className="block text-sm mb-1">Data Inicial:</label>
+            <input
+              type="date"
+              id="startDate"
+              value={startDate}
+              className="w-full px-3 py-2 border rounded-md"
+              onChange={(e) => {
+                console.log(e.target.value)
+                setStartDate(e.target.value)
+              }}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm mb-1">Data Final:</label>
+            <input
+              type="date"
+              id="endDate"
+              value={endDate}
+              className="w-full px-3 py-2 border rounded-md"
+              onChange={(e) => setEndDate(e.target.value)}
+            />
+          </div>
+
         </div>
       </div>
 

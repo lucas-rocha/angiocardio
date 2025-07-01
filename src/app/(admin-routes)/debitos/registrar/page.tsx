@@ -93,8 +93,6 @@ export default function DebitosRegistro() {
       }
     }
 
-    console.log(checkOverdue())
-
     try {
       const response = await fetch('/api/debitos', {
         method: 'POST',
@@ -115,6 +113,13 @@ export default function DebitosRegistro() {
       if (response.ok) {
         const data = await response.json();
         setDebits((prevDebits) => [...prevDebits, data]);
+
+        setDescription('')
+        setValueToPay(0)
+        setSelectedUnit('')
+        setIssueDate('')
+        SetExpectedDate('')
+        setDueDate('')
       }
     } catch (error) {
       console.log(error)

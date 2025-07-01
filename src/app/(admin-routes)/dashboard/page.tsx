@@ -305,6 +305,8 @@ export default function Dashboard() {
     const payload = {
       debit: transformedDebitData,
       credit: transformedCreditData,
+      startDate: startDate || null,
+      endDate: endDate || null
     };
   
     // Faça a requisição para gerar o PDF
@@ -337,6 +339,8 @@ export default function Dashboard() {
       const baixaDateOnly = new Date(baixaDate.getFullYear(), baixaDate.getMonth(), baixaDate.getDate());
       const startOnly = new Date(start.getFullYear(), start.getMonth(), start.getDate());
       const endOnly = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+
+      console.log("Aqui", baixaDateOnly, startOnly, endOnly)
   
       return (
         baixaDateOnly >= startOnly &&

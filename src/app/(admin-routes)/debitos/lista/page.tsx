@@ -50,8 +50,37 @@ export default function ListDebits() {
   const [unitFilter, setUnitFilter] = useState('Todos');
   const [status, setStatus] = useState('Todos')
   const isUser = useIsUser()
+  const [startDate, setStartDate] = useState<string>(""); 
+  const [endDate, setEndDate] = useState<string>("");
 
   const timeZone = 'America/Sao_Paulo'; 
+
+   const applyFilters = () => {
+  const start = startDate ? new Date(startDate) : null;
+  const end = endDate ? new Date(endDate) : null;
+
+  const filtered = debits.filter((debit) => {
+    const matchesUnit = unitFilter === 'Todos' || debit.unitId === unitFilter;
+    const matchesSearch = debit.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = status === 'Todos' || status === checkStatus(debit.IsBaixa, debit.expectedDate);
+
+    const matchesDate =
+      !start || !end
+        ? true
+        : (() => {
+            if (!debit.baixaDate) return false;
+            const baixaDate = new Date(debit.baixaDate);
+            const baixaDateOnly = new Date(baixaDate.getFullYear(), baixaDate.getMonth(), baixaDate.getDate());
+            const startOnly = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+            const endOnly = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+            return baixaDateOnly >= startOnly && baixaDateOnly <= endOnly;
+          })();
+
+    return matchesUnit && matchesSearch && matchesStatus && matchesDate;
+  });
+
+  setFilterDebit(filtered);
+};
 
   const handleSuccess = () => {
     Swal.fire({
@@ -223,39 +252,30 @@ export default function ListDebits() {
     setFilterDebit(filtered);
   };
 
-  const handleSelectChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedUnit = e.target.value;
-    setUnitFilter(selectedUnit);
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  setUnitFilter(e.target.value);
+};
 
-    // Filtra os dados considerando tanto o filtro do select quanto a pesquisa
-    const filtered = debits.filter((debit) => {
+const handleSelectChangeStatus = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  setStatus(e.target.value);
+};
 
-      const matchesUnit = selectedUnit === 'Todos' || debit.unitId === selectedUnit;
-      const matchesSearch = debit.description.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesStatus = status === 'Todos' || status === checkStatus(debit.IsBaixa, debit.expectedDate)
+const handleSearchChange = (value: string) => {
+  setSearchQuery(value);
+};
 
-      return matchesUnit && matchesSearch && matchesStatus;
-    });
-
-    setFilterDebit(filtered);
-  } 
-
-  const handleSelectChangeStatus = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedStatus = e.target.value;
-    setStatus(selectedStatus)
-
-    const filtered = debits.filter((debit) => {
-      const matchesUnit = unitFilter === 'Todos' || debit.unitId === unitFilter;
-      const matchesSearch = debit.description.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesStatus = selectedStatus === 'Todos' || selectedStatus === checkStatus(debit.IsBaixa, debit.expectedDate)
-      return matchesUnit && matchesSearch && matchesStatus;
-    });
-
-    setFilterDebit(filtered);
-  } 
+const handleDateChange = (start: string, end: string) => {
+  setStartDate(start);
+  setEndDate(end);
+};
 
   const downloadPDF = async () => {
-    const transformedData = transformData(filterDebit)
+    const transformedData = {
+      data: transformData(filterDebit),
+      startDate,
+      endDate,
+      isDebit: true,
+    };
 
     const response = await fetch("/api/pdf", {
       method: 'POST',
@@ -304,11 +324,15 @@ export default function ListDebits() {
     );
   };
 
+  useEffect(() => {
+  applyFilters();
+}, [searchQuery, unitFilter, status, startDate, endDate, debits]);
+
   return (
     <div className="p-6 flex-1">
       <h1 className="text-xl font-semibold text-gray-900 mb-6">Histórico de Despesas</h1>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
           <label htmlFor="unit-search" className="block text-sm font-medium text-gray-700 mb-1">
             Procurar despesa pela descrição
@@ -345,6 +369,35 @@ export default function ListDebits() {
             <option value="pendente">Pendente</option>
           </select>
         </div>
+
+        <div className="flex gap-4">
+          <div>
+            <label className="block text-sm mb-1">Data Inicial:</label>
+            <input
+              type="date"
+              id="startDate"
+              value={startDate}
+              className="w-full px-3 py-2 border rounded-md"
+              onChange={(e) => {
+                console.log(e.target.value)
+                setStartDate(e.target.value)
+              }}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm mb-1">Data Final:</label>
+            <input
+              type="date"
+              id="endDate"
+              value={endDate}
+              className="w-full px-3 py-2 border rounded-md"
+              onChange={(e) => setEndDate(e.target.value)}
+            />
+          </div>
+
+        </div>
+
       </div>
 
       {checkedItems.length !== 0 && (
