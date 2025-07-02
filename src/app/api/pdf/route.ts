@@ -2,6 +2,7 @@ import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import fs from "fs";
 import path from "path";
 import { format } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
 
 export async function POST(request: Request) {
   const { data, startDate, endDate, isDebit} = await request.json();
@@ -76,17 +77,12 @@ if (startDate && endDate) {
 }
 
 
-  // Data/hora atual formatada
-  const now = new Date();
-  const formatDate = now.toLocaleString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const actualDate = new Date();
+  const timeZone = 'America/Sao_Paulo';
 
-  const footerText = `Emitido em ${formatDate}`;
+  const zonedDate = toZonedTime(actualDate, timeZone);
+
+  const footerText = `Emitido em ${format(zonedDate, "dd/MM/yyyy 'às' HH:mm")}`;
   const pageNumberText = `Página ${pageCount}`;
 
   // Texto no rodapé (esquerda)
