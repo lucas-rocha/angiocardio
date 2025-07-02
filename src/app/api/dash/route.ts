@@ -237,9 +237,15 @@ const drawLucroOuPrejuizo = (page: any) => {
 // Agora, ao desenhar as tabelas de Débitos e Créditos, chamamos as funções:
 
 let page = addPage();
-drawTableSection(debit, "DÉBITOS", true);  // Passa `true` para débitos
-drawTableSection(credit, "CRÉDITOS", false); // Passa `false` para créditos
+y = 500; // importante inicializar y
 
+drawTableSection(debit, "DÉBITOS", true);  // Desenha a seção Débitos
+
+// Força nova página para a seção Créditos
+page = addPage();
+y = 500; // reseta a posição vertical para o topo da nova página
+
+drawTableSection(credit, "CRÉDITOS", false)
 
 drawLucroOuPrejuizo(page);
 drawPageNumber(page); // Agora sim, abaixo de "Lucro ou Prejuízo"

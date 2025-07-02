@@ -59,6 +59,19 @@ export default function ListDebits() {
   const start = startDate ? new Date(startDate) : null;
   const end = endDate ? new Date(endDate) : null;
 
+  function isDateInRange(dateStr: string, startStr: string, endStr: string) {
+    const date = new Date(dateStr);
+    const start = new Date(startStr);
+    const end = new Date(endStr);
+
+    // Extrair só ano, mês e dia, ignorando hora, criando datas com horário 00:00 local
+    const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const startOnly = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+    const endOnly = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+
+    return dateOnly >= startOnly && dateOnly <= endOnly;
+  }
+
   const filtered = debits.filter((debit) => {
     const matchesUnit = unitFilter === 'Todos' || debit.unitId === unitFilter;
     const matchesSearch = debit.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -67,14 +80,7 @@ export default function ListDebits() {
     const matchesDate =
       !start || !end
         ? true
-        : (() => {
-            if (!debit.baixaDate) return false;
-            const baixaDate = new Date(debit.baixaDate);
-            const baixaDateOnly = new Date(baixaDate.getFullYear(), baixaDate.getMonth(), baixaDate.getDate());
-            const startOnly = new Date(start.getFullYear(), start.getMonth(), start.getDate());
-            const endOnly = new Date(end.getFullYear(), end.getMonth(), end.getDate());
-            return baixaDateOnly >= startOnly && baixaDateOnly <= endOnly;
-          })();
+        : debit.baixaDate && isDateInRange(debit.baixaDate, startDate, endDate);
 
     return matchesUnit && matchesSearch && matchesStatus && matchesDate;
   });
