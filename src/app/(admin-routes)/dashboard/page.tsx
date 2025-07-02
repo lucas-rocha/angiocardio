@@ -328,44 +328,44 @@ export default function Dashboard() {
   
 
   const handleDateChange = () => {
-  const start = new Date(startDate);
-  const end = new Date(endDate);
+    const start = new Date(startDate);
+    const end = new Date(endDate);
 
-  const filteredDebits = debits.filter((debit) => {
-    if (!debit.baixaDate) return false;
-    const baixaDate = new Date(debit.baixaDate);
+    const filteredDebits = debits.filter((debit) => {
+      if (!debit.baixaDate) return false;
+      const baixaDate = new Date(debit.baixaDate);
 
-    const baixaDateOnly = new Date(baixaDate.getFullYear(), baixaDate.getMonth(), baixaDate.getDate());
-    const startOnly = new Date(start.getFullYear(), start.getMonth(), start.getDate());
-    const endOnly = new Date(end.getFullYear(), end.getMonth(), end.getDate() + 1); // inclui o dia final inteiro
+      const baixaDateOnly = new Date(baixaDate.getFullYear(), baixaDate.getMonth(), baixaDate.getDate());
+      const startOnly = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 1);
+      const endOnly = new Date(end.getFullYear(), end.getMonth(), end.getDate() + 1); // inclui o dia final inteiro
 
-    return (
-      baixaDateOnly >= startOnly &&
-      baixaDateOnly < endOnly &&
-      (unitFilter === "Todos" || debit.unitId === unitFilter) &&
-      debit.IsBaixa === true
-    );
-  });
+      return (
+        baixaDateOnly >= startOnly &&
+        baixaDateOnly < endOnly &&
+        (unitFilter === "Todos" || debit.unitId === unitFilter) &&
+        debit.IsBaixa === true
+      );
+    });
 
-  const filteredCredits = credits.filter((credit) => {
-    if (!credit.baixaDate) return false;
-    const baixaDate = new Date(credit.baixaDate);
+    const filteredCredits = credits.filter((credit) => {
+      if (!credit.baixaDate) return false;
+      const baixaDate = new Date(credit.baixaDate);
 
-    const baixaDateOnly = new Date(baixaDate.getFullYear(), baixaDate.getMonth(), baixaDate.getDate());
-    const startOnly = new Date(start.getFullYear(), start.getMonth(), start.getDate());
-    const endOnly = new Date(end.getFullYear(), end.getMonth(), end.getDate() + 1);
+      const baixaDateOnly = new Date(baixaDate.getFullYear(), baixaDate.getMonth(), baixaDate.getDate());
+      const startOnly = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 1);
+      const endOnly = new Date(end.getFullYear(), end.getMonth(), end.getDate() + 1);
 
-    return (
-      baixaDateOnly >= startOnly &&
-      baixaDateOnly < endOnly &&
-      (unitFilter === "Todos" || credit.unitId === unitFilter) &&
-      credit.IsBaixa === true
-    );
-  });
+      return (
+        baixaDateOnly >= startOnly &&
+        baixaDateOnly < endOnly &&
+        (unitFilter === "Todos" || credit.unitId === unitFilter) &&
+        credit.IsBaixa === true
+      );
+    });
 
-  setFilteredDebits(filteredDebits);
-  setFilteredCredits(filteredCredits);
-};
+    setFilteredDebits(filteredDebits);
+    setFilteredCredits(filteredCredits);
+  };
 
 
   useEffect(() => {
