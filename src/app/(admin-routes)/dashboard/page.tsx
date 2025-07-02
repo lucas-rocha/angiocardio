@@ -331,17 +331,14 @@ export default function Dashboard() {
     const start = new Date(startDate);
     const end = new Date(endDate);
 
+    const startOnly = new Date(start.getFullYear(), start.getMonth(), start.getDate()); // certo
+    const endOnly = new Date(end.getFullYear(), end.getMonth(), end.getDate() + 1); // inclui o dia final inteiro
+
     const filteredDebits = debits.filter((debit) => {
       if (!debit.baixaDate) return false;
+
       const baixaDate = new Date(debit.baixaDate);
-
       const baixaDateOnly = new Date(baixaDate.getFullYear(), baixaDate.getMonth(), baixaDate.getDate());
-      const startOnly = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 1);
-      const endOnly = new Date(end.getFullYear(), end.getMonth(), end.getDate() + 1); // inclui o dia final inteiro
-
-      console.log("baixaDateOnly", baixaDateOnly)
-      console.log("startOnly", startOnly)
-      console.log("endOnly", endOnly)
 
       return (
         baixaDateOnly >= startOnly &&
@@ -353,12 +350,10 @@ export default function Dashboard() {
 
     const filteredCredits = credits.filter((credit) => {
       if (!credit.baixaDate) return false;
+
       const baixaDate = new Date(credit.baixaDate);
-
       const baixaDateOnly = new Date(baixaDate.getFullYear(), baixaDate.getMonth(), baixaDate.getDate());
-      const startOnly = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 1);
-      const endOnly = new Date(end.getFullYear(), end.getMonth(), end.getDate() + 1);
-
+    
       return (
         baixaDateOnly >= startOnly &&
         baixaDateOnly < endOnly &&
