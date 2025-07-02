@@ -337,7 +337,7 @@ export default function Dashboard() {
     const end = parseLocalDate(endDate);
 
     const startOnly = new Date(start.getFullYear(), start.getMonth(), start.getDate()); // certo
-    const endOnly = new Date(end.getFullYear(), end.getMonth(), end.getDate() + 1); // inclui o dia final inteiro
+    const endOnly = new Date(end.getFullYear(), end.getMonth(), end.getDate()); // inclui o dia final inteiro
 
     const filteredDebits = debits.filter((debit) => {
       if (!debit.baixaDate) return false;
