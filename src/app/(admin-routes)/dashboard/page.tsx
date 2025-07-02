@@ -325,11 +325,16 @@ export default function Dashboard() {
     link.download = "relatorio.pdf";
     link.click();
   };
-  
+
 
   const handleDateChange = () => {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    function parseLocalDate(dateStr: string): Date {
+      const [year, month, day] = dateStr.split("-").map(Number);
+      return new Date(year, month - 1, day);
+    }
+
+    const start = parseLocalDate(startDate);
+    const end = parseLocalDate(endDate);
 
     const startOnly = new Date(start.getFullYear(), start.getMonth(), start.getDate()); // certo
     const endOnly = new Date(end.getFullYear(), end.getMonth(), end.getDate() + 1); // inclui o dia final inteiro
@@ -338,7 +343,11 @@ export default function Dashboard() {
       if (!debit.baixaDate) return false;
 
       const baixaDate = new Date(debit.baixaDate);
-      const baixaDateOnly = new Date(baixaDate.getFullYear(), baixaDate.getMonth(), baixaDate.getDate());
+      const baixaDateOnly = new Date(
+        baixaDate.getFullYear(),
+        baixaDate.getMonth(),
+        baixaDate.getDate() + 1
+      );
 
       console.log("Baixa Date Only:", baixaDateOnly);
       console.log("Start Only:", startOnly);
@@ -356,7 +365,7 @@ export default function Dashboard() {
       if (!credit.baixaDate) return false;
 
       const baixaDate = new Date(credit.baixaDate);
-      const baixaDateOnly = new Date(baixaDate.getFullYear(), baixaDate.getMonth(), baixaDate.getDate());
+      const baixaDateOnly = new Date(baixaDate.getFullYear(), baixaDate.getMonth(), baixaDate.getDate() + 1);
     
       return (
         baixaDateOnly >= startOnly &&
