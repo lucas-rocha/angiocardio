@@ -339,6 +339,10 @@ export default function Dashboard() {
       const startOnly = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 1);
       const endOnly = new Date(end.getFullYear(), end.getMonth(), end.getDate() + 1); // inclui o dia final inteiro
 
+      console.log("baixaDateOnly", baixaDateOnly)
+      console.log("startOnly", startOnly)
+      console.log("endOnly", endOnly)
+
       return (
         baixaDateOnly >= startOnly &&
         baixaDateOnly < endOnly &&
