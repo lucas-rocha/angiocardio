@@ -2,6 +2,7 @@ import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import fs from "fs";
 import path from "path";
 import { format, formatDate } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
 
 export async function POST(request: Request) {
   const { debit, credit, startDate, endDate } = await request.json();
@@ -71,14 +72,17 @@ const getBaixaMonthYear = () => {
 const drawPageNumber = (page: any) => {
   const fontSize = 10;
   const actualDate = new Date();
+  const timeZone = 'America/Sao_Paulo';
 
-  const dateText = `Emitido em ${format(actualDate, "dd/MM/yyyy 'às' HH:mm")}`;
+  const zonedDate = toZonedTime(actualDate, timeZone);
+
+  const dateText = `Emitido em ${format(zonedDate, "dd/MM/yyyy 'às' HH:mm")}`;
   const pageText = `Página ${pageCount}`;
   const combinedText = `${dateText}  •  ${pageText}`;
 
   page.drawText(combinedText, {
-    x: pageWidth - 50 - font.widthOfTextAtSize(combinedText, fontSize), // alinhado à direita com margem
-    y: 30, // posição no rodapé
+    x: pageWidth - 50 - font.widthOfTextAtSize(combinedText, fontSize),
+    y: 30,
     size: fontSize,
     font: font,
     color: rgb(0.3, 0.3, 0.3),
@@ -86,6 +90,7 @@ const drawPageNumber = (page: any) => {
 
   pageCount++;
 };
+
 
 
 
