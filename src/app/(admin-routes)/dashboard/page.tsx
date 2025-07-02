@@ -340,6 +340,10 @@ export default function Dashboard() {
       const baixaDate = new Date(debit.baixaDate);
       const baixaDateOnly = new Date(baixaDate.getFullYear(), baixaDate.getMonth(), baixaDate.getDate());
 
+      console.log("Baixa Date Only:", baixaDateOnly);
+      console.log("Start Only:", startOnly);
+      console.log("End Only:", endOnly);
+
       return (
         baixaDateOnly >= startOnly &&
         baixaDateOnly < endOnly &&
