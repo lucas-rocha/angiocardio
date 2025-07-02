@@ -209,8 +209,9 @@ const drawLucroOuPrejuizo = (page: any) => {
   console.log(`Lucro ou Prejuízo: ${lucroOuPrejuizo}`);
 
   const resultado = lucroOuPrejuizo >= 0
-    ? `Lucro: R$ ${lucroOuPrejuizo.toFixed(2)}`
-    : `Prejuízo: R$ ${Math.abs(lucroOuPrejuizo).toFixed(2)}`;
+  ? `Lucro: ${lucroOuPrejuizo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`
+  : `Prejuízo: ${Math.abs(lucroOuPrejuizo).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
+
 
   // Desenha o título da seção
   page.drawText("LUCRO OU PREJUÍZO", {
