@@ -346,7 +346,7 @@ export default function Dashboard() {
       const baixaDateOnly = new Date(
         baixaDate.getFullYear(),
         baixaDate.getMonth(),
-        baixaDate.getDate() + 1
+        baixaDate.getDate()
       );
 
       console.log("Baixa Date Only:", baixaDateOnly);
@@ -365,7 +365,7 @@ export default function Dashboard() {
       if (!credit.baixaDate) return false;
 
       const baixaDate = new Date(credit.baixaDate);
-      const baixaDateOnly = new Date(baixaDate.getFullYear(), baixaDate.getMonth(), baixaDate.getDate() + 1);
+      const baixaDateOnly = new Date(baixaDate.getFullYear(), baixaDate.getMonth(), baixaDate.getDate());
     
       return (
         baixaDateOnly >= startOnly &&
