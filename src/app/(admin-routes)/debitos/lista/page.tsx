@@ -67,7 +67,7 @@ export default function ListDebits() {
     // Extrair só ano, mês e dia, ignorando hora, criando datas com horário 00:00 local
     const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     const startOnly = new Date(start.getFullYear(), start.getMonth(), start.getDate());
-    const endOnly = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+    const endOnly = new Date(end.getFullYear(), end.getMonth(), end.getDate() + 1);
 
     return dateOnly >= startOnly && dateOnly <= endOnly;
   }
