@@ -2,6 +2,7 @@
 
 import { useIsUser } from '@/hooks/useIsUser'
 import { useEffect, useState } from 'react'
+import Swal from 'sweetalert2'
 
 interface Unit {
   id: number
@@ -13,6 +14,16 @@ export default function RegisterUnit() {
   const [newUnit, setNewUnit] = useState('')
   const [cnpj, setCnpj] = useState('')
   const [units, setUnits] = useState<Unit[]>([])
+
+  const handleError = () => {
+    Swal.fire({
+      title: 'Erro!',
+      text: 'Unidade já cadastrada ou erro ao cadastrar unidade!',
+      icon: 'success',
+      confirmButtonText: 'OK',
+      timer: 3000
+    });
+  };
 
   useEffect(() => {
     async function fetchUnits() {
@@ -47,7 +58,7 @@ export default function RegisterUnit() {
         setNewUnit(''); // Limpa o campo após o envio
         setCnpj('');
       } else {
-        // const errorData = await response.json();
+        handleError()
       }
     } catch (error) {
       console.log(error)

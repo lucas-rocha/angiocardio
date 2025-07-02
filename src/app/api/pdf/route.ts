@@ -1,6 +1,7 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import fs from "fs";
 import path from "path";
+import { format } from "date-fns";
 
 export async function POST(request: Request) {
   const { data, startDate, endDate, isDebit} = await request.json();
@@ -62,7 +63,7 @@ page.drawText(title, {
 
 // Subtítulo com o período, se fornecido
 if (startDate && endDate) {
-  const period = `Período: ${new Date(startDate).toLocaleDateString("pt-BR")} até ${new Date(endDate).toLocaleDateString("pt-BR")}`;
+  const period = `Período: ${format(new Date(startDate + 'T00:00:00'), 'dd/MM/yyyy')} até ${format(new Date(endDate + 'T00:00:00'), 'dd/MM/yyyy')}`;
   const periodFontSize = 11;
   const periodWidth = font.widthOfTextAtSize(period, periodFontSize);
   page.drawText(period, {

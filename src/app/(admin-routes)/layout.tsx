@@ -20,7 +20,7 @@ export default async function PrivateLayout({ children }: PrivateLayoutProps) {
       <div className="fixed top-0 left-0 h-full w-[250px] bg-gray-800">
         <Sidebar />
       </div>
-      <div className="ml-[350px] flex w-full p-6">
+      <div className="ml-[350px] flex flex-1 p-6" style={{ maxWidth: 'calc(100vw - 350px)' }}>
         {children}
       </div>
     </div>

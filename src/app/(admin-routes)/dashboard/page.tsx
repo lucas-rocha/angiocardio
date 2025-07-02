@@ -300,8 +300,7 @@ export default function Dashboard() {
     // Transforme os dados necessários para o relatório
     const transformedDebitData = transformData(filteredDebits);
     const transformedCreditData = transformData(filteredCredits);
-  
-    // Monte o payload com dois objetos
+
     const payload = {
       debit: transformedDebitData,
       credit: transformedCreditData,
@@ -339,8 +338,6 @@ export default function Dashboard() {
       const baixaDateOnly = new Date(baixaDate.getFullYear(), baixaDate.getMonth(), baixaDate.getDate());
       const startOnly = new Date(start.getFullYear(), start.getMonth(), start.getDate());
       const endOnly = new Date(end.getFullYear(), end.getMonth(), end.getDate());
-
-      console.log("Aqui", baixaDateOnly, startOnly, endOnly)
   
       return (
         baixaDateOnly >= startOnly &&

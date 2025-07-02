@@ -33,7 +33,7 @@ export default function Sidebar() {
 
   useEffect(() => {
     setActualMenu(pathname)
-  }, [])
+  }, [pathname])
 
   const isSubMenuOpen = (menu: string) => {
     if(actualMenu == menu) {

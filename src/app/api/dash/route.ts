@@ -55,7 +55,7 @@ const getBaixaMonthYear = () => {
     });
 
     if(startDate != null && endDate != null) {
-      const periodoTexto = `Período: ${format(new Date(startDate), 'dd/MM/yyyy')} até ${format(new Date(endDate), 'dd/MM/yyyy')}`;
+      const periodoTexto = `Período: ${format(new Date(startDate + 'T00:00:00'), 'dd/MM/yyyy')} até ${format(new Date(endDate + 'T00:00:00'), 'dd/MM/yyyy')}`;
       page.drawText(periodoTexto, {
         x: logoDims.width + 50,
         y: 550,
