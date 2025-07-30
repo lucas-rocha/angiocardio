@@ -219,7 +219,7 @@ export default function ListDebits() {
 
   const checkStatus = (statusBaixa: boolean, expectedDate: string) => {
     if (statusBaixa === true) {
-      return 'pago';
+      return 'recebido';
     }
   
     if (statusBaixa === false) {
@@ -328,7 +328,6 @@ useEffect(() => {
           <label className="block text-sm mb-1">Status</label>
           <select className="w-full max-w-xs px-3 py-2 border rounded-md" onChange={handleSelectChangeStatus}>
             <option value="Todos">Todos</option>
-            <option value="pago">Pago</option>
             <option value="recebido">Recebido</option>
             <option value="vencido">Vencido</option>
             <option value="pendente">Pendente</option>

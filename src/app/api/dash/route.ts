@@ -65,6 +65,8 @@ const getBaixaMonthYear = () => {
         color: rgb(0.3, 0.3, 0.3)
       });
     }
+    
+    drawPageNumber(page);
 
     return page;
   };
@@ -254,7 +256,6 @@ y = 500; // reseta a posição vertical para o topo da nova página
 drawTableSection(credit, "CRÉDITOS", false)
 
 drawLucroOuPrejuizo(page);
-drawPageNumber(page); // Agora sim, abaixo de "Lucro ou Prejuízo"
 
   
   const pdfBytes = await pdfDoc.save();
