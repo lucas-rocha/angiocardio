@@ -11,16 +11,16 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
-  # app:
-  #   build:
-  #     context: .
-  #   container_name: nextjs_app
-  #   environment:
-  #     DATABASE_URL: "postgresql://angiocardio:123456@db:5432/angiocardiodb?schema=public"
-  #   ports:
-  #     - "3000:3000"
-  #   depends_on:
-  #     - db
+  app:
+    build:
+      context: .
+    container_name: nextjs_app
+    environment:
+      DATABASE_URL: "postgresql://angiocardio:123456@db:5432/angiocardiodb?schema=public"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
 
 volumes:
   pgdata:
