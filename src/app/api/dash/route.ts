@@ -132,6 +132,9 @@ const drawTableSection = (data: string[][], title: string, isDebit: boolean) => 
 
     let x = tableStartX;
     row.forEach((text, colIndex) => {
+  // Cabeçalho da tabela (índice 0) sempre em negrito
+  const isHeader = index === 0;
+
   // Identifica unidades: primeira coluna em caixa alta e as outras vazias
   const isUnit =
     colIndex === 0 &&
@@ -141,7 +144,7 @@ const drawTableSection = (data: string[][], title: string, isDebit: boolean) => 
   // Mantém "TOTAL" em negrito na primeira célula, se quiser
   const isTotalRow = row[0].trim().toUpperCase() === "TOTAL" && colIndex === 0;
 
-  const currentFont = isUnit || isTotalRow ? boldFont : font;
+  const currentFont = isHeader || isUnit || isTotalRow ? boldFont : font;
 
   page.drawText(text, {
     x: x + 5,
@@ -152,6 +155,7 @@ const drawTableSection = (data: string[][], title: string, isDebit: boolean) => 
   });
   x += colWidths[colIndex];
 });
+
 
     // Desenha as linhas verticais entre as colunas (incluindo entre "VALOR" e "STATUS")
     let currentX = tableStartX;
