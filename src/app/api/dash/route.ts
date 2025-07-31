@@ -6,6 +6,7 @@ import { toZonedTime } from "date-fns-tz";
 
 export async function POST(request: Request) {
   const { debit, credit, startDate, endDate } = await request.json();
+  console.log("Dados recebidos:", { debit, credit, startDate, endDate }); // Diagnóstico
   const pdfDoc = await PDFDocument.create();
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
   const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
@@ -131,25 +132,26 @@ const drawTableSection = (data: string[][], title: string, isDebit: boolean) => 
 
     let x = tableStartX;
     row.forEach((text, colIndex) => {
-      // Identifica unidades e coloca em negrito
-      const isUnit = colIndex === 0 && (index === 0 || text.trim().toUpperCase() === text.trim());
+  // Identifica unidades: primeira coluna em caixa alta e as outras vazias
+  const isUnit =
+    colIndex === 0 &&
+    row[0].trim().toUpperCase() === row[0].trim() &&
+    row.slice(1).every((cell) => cell.trim() === "");
 
-      // Define negrito para unidades, descrições e totais
-      const isBold =
-        isUnit || // Texto das unidades
-        ["DESCRIÇÃO", "TOTAL"].includes(row[0].trim().toUpperCase()); // Cabeçalhos ou Totais
+  // Mantém "TOTAL" em negrito na primeira célula, se quiser
+  const isTotalRow = row[0].trim().toUpperCase() === "TOTAL" && colIndex === 0;
 
-      const currentFont = isBold ? boldFont : font;
+  const currentFont = isUnit || isTotalRow ? boldFont : font;
 
-      page.drawText(text, {
-        x: x + 5,
-        y: y - rowHeight / 2,
-        size: 10,
-        font: currentFont,
-        color: rgb(0, 0, 0),
-      });
-      x += colWidths[colIndex];
-    });
+  page.drawText(text, {
+    x: x + 5,
+    y: y - rowHeight / 2,
+    size: 10,
+    font: currentFont,
+    color: rgb(0, 0, 0),
+  });
+  x += colWidths[colIndex];
+});
 
     // Desenha as linhas verticais entre as colunas (incluindo entre "VALOR" e "STATUS")
     let currentX = tableStartX;
