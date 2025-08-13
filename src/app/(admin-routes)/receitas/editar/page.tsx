@@ -76,7 +76,6 @@ export default function EditDebit() {
           setValueToPay(data.valueToPay)
           
           const parseExpectedDate = new Date(data.expectedDate)
-          console.log(parseExpectedDate)
           const parsedDate = new Date(parseExpectedDate.getTime() + parseExpectedDate.getTimezoneOffset() * 60000); 
           const formattedDate = format(parsedDate, 'yyyy-MM-dd')
           SetExpectedDate(formattedDate)
@@ -151,7 +150,6 @@ export default function EditDebit() {
 
   const handleStatusChange = (newStatus: boolean) => {
     setIsPago(newStatus); // Atualiza o status para pago ou pendente
-    console.log(newStatus)
   };
   
   const handleNewDateChange = (newDate: string) => {

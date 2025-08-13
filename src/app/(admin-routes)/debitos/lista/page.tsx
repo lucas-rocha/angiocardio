@@ -99,13 +99,6 @@ export default function ListDebits() {
   };
 
   const handleCheckboxChange = (id: string, dateBaixa: string) => {
-    // setCheckedItems((prev: any) =>
-    // prev.includes(id)
-    // ? prev.filter((itemId: string) => itemId !== id)
-    // : [...prev, id]
-    // );
-    // console.log(checkedItems)
-    console.log("OIOIOI")
     setCheckedItems((prev) =>
     prev.some((item) => item.id === id)
       ? prev.filter((item) => item.id !== id) // Remove o item pelo ID
@@ -233,8 +226,6 @@ export default function ListDebits() {
       // Criar novas datas com horas, minutos, segundos e milissegundos zerados
       const parsedDateOnly = new Date(parseExpectedDate.getFullYear(), parseExpectedDate.getMonth(), parseExpectedDate.getDate() + 1);
       const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-
-      console.log("oi",parsedDateOnly, todayOnly)
   
       if (parsedDateOnly < todayOnly) {
         return 'vencido';
@@ -303,25 +294,6 @@ const handleDateChange = (start: string, end: string) => {
     return format(new Date(date), 'dd/MM/yyyy', { locale: ptBR })
   }
 
-
-  // const saveDate = (id: string, date: string) => {
-  //   setUpdateDateAndId((prev) => {
-  //     // Verifica se o ID já existe no array
-  //     const exists = prev.some((item) => item.id === id);
-  
-  //     if (exists) {
-  //       // Substitui o objeto com o mesmo ID
-  //       return prev.map((item) =>
-  //         item.id === id ? { ...item, date } : item
-  //       );
-  //     } else {
-  //       // Adiciona um novo objeto ao array
-  //       return [...prev, { id, date }];
-  //     }
-  //   });
-
-  //   console.log(updateDateAndId)
-  // }
   const saveDate = (id: string, newDate: string) => {
     setCheckedItems((prev) =>
       prev.map((item) =>
@@ -385,7 +357,6 @@ const handleDateChange = (start: string, end: string) => {
               value={startDate}
               className="px-3 py-2 border rounded-md"
               onChange={(e) => {
-                console.log(e.target.value)
                 setStartDate(e.target.value)
               }}
             />

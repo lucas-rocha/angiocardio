@@ -103,9 +103,6 @@ export default function ListDebits() {
       ? prev.filter((item) => item.id !== id) // Remove o item pelo ID
       : [...prev, { id, dateBaixa }] // Adiciona um novo item
     );
-
-    console.log(filterDebit)
-    console.log(checkedItems)
   };
 
   useEffect(() => {

@@ -122,7 +122,6 @@ export default function EditDebit() {
         return false
       }
 
-      console.log(checkOverdue())
 
       const body: DebitoUpdate = {
         description: description,
@@ -163,7 +162,6 @@ export default function EditDebit() {
 
   const handleStatusChange = (newStatus: boolean) => {
     setIsPago(newStatus); // Atualiza o status para pago ou pendente
-    console.log(newStatus)
   };
   
   const handleNewDateChange = (newDate: string) => {

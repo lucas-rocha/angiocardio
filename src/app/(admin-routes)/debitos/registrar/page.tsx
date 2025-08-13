@@ -65,7 +65,6 @@ export default function DebitosRegistro() {
       try {
         const response = await fetch('/api/debitos');
         const data = await response.json();
-        console.log(data)
         
         setDebits(data);
       } catch (error) {

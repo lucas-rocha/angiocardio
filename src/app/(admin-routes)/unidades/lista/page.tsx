@@ -33,7 +33,6 @@ export default function ListUnit() {
       try {
         const response = await fetch('/api/unidades');
         const data = await response.json();
-        console.log(data)
         
         setUnits(data);
       } catch (error) {

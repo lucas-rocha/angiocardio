@@ -6,7 +6,6 @@ import { toZonedTime } from "date-fns-tz";
 
 export async function POST(request: Request) {
   const { debit, credit, startDate, endDate } = await request.json();
-  console.log("Dados recebidos:", { debit, credit, startDate, endDate }); // Diagnóstico
   const pdfDoc = await PDFDocument.create();
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
   const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
@@ -34,7 +33,6 @@ export async function POST(request: Request) {
   // Função para extrair e formatar o mês/ano corretamente
 const getBaixaMonthYear = () => {
   const baixaDate = debit[2][3]; // Quarta coluna da terceira linha
-  console.log("Data de baixa original:", baixaDate); // Diagnóstico
   const [day, month, year] = baixaDate.split("/"); // Divide a data no formato DD/MM/YYYY
   const months = [
     "jan", "fev", "mar", "abr", "mai", "jun", 
@@ -42,7 +40,6 @@ const getBaixaMonthYear = () => {
   ];
   const monthName = months[parseInt(month, 10) - 1]; // Converte mês para índice
   const shortYear = year.slice(-2); // Últimos dois dígitos do ano
-  console.log("Mês e ano extraídos:", `${monthName}/${shortYear}`); // Diagnóstico
   return `${monthName}/${shortYear}`;
 };
 
@@ -216,10 +213,6 @@ const drawTableSection = (data: string[][], title: string, isDebit: boolean) => 
 const drawLucroOuPrejuizo = (page: any) => {
   // Calcular lucro ou prejuízo
   const lucroOuPrejuizo = totalCreditos - totalDebitos; // Créditos menos débitos
-
-  console.log(`Total Débitos: ${totalDebitos}`);
-  console.log(`Total Créditos: ${totalCreditos}`);
-  console.log(`Lucro ou Prejuízo: ${lucroOuPrejuizo}`);
 
   const resultado = lucroOuPrejuizo >= 0
   ? `Lucro: ${lucroOuPrejuizo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`

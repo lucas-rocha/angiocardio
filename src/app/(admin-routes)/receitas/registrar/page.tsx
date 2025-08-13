@@ -64,7 +64,6 @@ export default function CreditosRegistro() {
       try {
         const response = await fetch('/api/creditos');
         const data = await response.json();
-        console.log(data)
         
         setDebits(data);
       } catch (error) {

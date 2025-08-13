@@ -140,7 +140,6 @@ export default function Dashboard() {
     async function fetchDebits() {
       try {
         const response = await fetch('/api/debitos')
-        console.log(response)
         const data: DebitEntry[] = await response.json();
         
         setDebits(data);
@@ -229,7 +228,6 @@ export default function Dashboard() {
 
     setFilteredDebits(filteredDebits);
     setFilteredCredits(filteredCredits)
-    console.log(filteredDebits)
   } 
 
   const handleSelectMonthChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -349,10 +347,6 @@ export default function Dashboard() {
         baixaDate.getDate()
       );
 
-      console.log("Baixa Date Only:", baixaDateOnly);
-      console.log("Start Only:", startOnly);
-      console.log("End Only:", endOnly);
-
       return (
         baixaDateOnly >= startOnly &&
         baixaDateOnly < endOnly &&
@@ -410,7 +404,6 @@ export default function Dashboard() {
               value={startDate}
               className="w-full px-3 py-2 border rounded-md"
               onChange={(e) => {
-                console.log(e.target.value)
                 setStartDate(e.target.value)
               }}
             />
